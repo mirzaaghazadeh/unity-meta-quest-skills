@@ -1,19 +1,22 @@
 # Unity × Meta Quest skill library
 
 [![License: MIT](https://img.shields.io/badge/license-MIT%20%2B%20third--party-blue.svg)](THIRD_PARTY_NOTICES.md)
-![Skills: 80](https://img.shields.io/badge/skills-80-brightgreen.svg)
+![Skills: 82](https://img.shields.io/badge/skills-82-brightgreen.svg)
 ![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin%20marketplace-orange.svg)
 
 Agent skills for building **Meta Quest VR games in Unity** with Claude Code and the **official Unity
-CLI**, and shipping them on the **Meta Horizon Store**. Meta's and Unity's official skills, original
-skills that fill the publishing gaps, and vetted community skills, all checked against the live
-docs on 2026-10-16.
+CLI**, getting them ready for **Meta VR Glasses**, and shipping them on the **Meta Horizon Store**.
+Meta's and Unity's official skills, original skills that fill the publishing gaps, and vetted
+community skills, all checked against the live docs (updated after Meta Connect 2026, on
+2026-10-17).
 
-Curated and written by **[Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh)**.
+Curated and written by **[Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh)**. Sister
+library for WebXR with Meta's Immersive Web SDK:
+[iwsdk-webxr-skills](https://github.com/mirzaaghazadeh/iwsdk-webxr-skills).
 
 | Folder | Skills | From | License |
 |---|---|---|---|
-| [`skills/custom/`](skills/custom) | 11 | **Original, by Navid Mirzaaghazadeh**: workflow router, Quest setup and settings, free art sourcing, level blockout and headless capture, builds, tests, VRC audit, store listing, upload, launch plan | MIT |
+| [`skills/custom/`](skills/custom) | 13 | **Original, by Navid Mirzaaghazadeh**: workflow router, Quest setup and settings, Meta VR Glasses readiness, Meta XR Operator, free art sourcing, level blockout and headless capture, builds, tests, VRC audit, store listing, upload, launch plan | MIT |
 | [`skills/meta-official/`](skills/meta-official) | 26 | Meta ([meta-quest/agentic-tools](https://github.com/meta-quest/agentic-tools)), unchanged, plus [ERRATA](skills/meta-official/ERRATA.md) | Apache-2.0 |
 | [`skills/unity-official/`](skills/unity-official) | 20 | Unity ([Unity-Technologies/skills](https://github.com/Unity-Technologies/skills)), unchanged | Unity Companion |
 | [`skills/community/`](skills/community) | 23 | Vetted third-party skills, unchanged, each with a `SOURCE.md` | MIT / Apache / Unlicense |
@@ -54,8 +57,8 @@ The five bundles don't overlap. Start with `quest-core` and add others when a ph
 
 | Bundle | Skills | Context per session | What's in it |
 |---|---|---|---|
-| **`quest-core`** | 25 | ~3.5k tokens | Router, verify-first guardrail, Unity CLI + live Editor, metavr, setup, settings, Meta XR Core + Interaction SDKs, CC0 art sourcing, level blockout + headless capture, VR UI, comfort, code review, tests, headset debugging, Perfetto, release build, VRCs, store listing, upload, launch plan |
-| `meta-quest-extras` | 15 | ~1.7k | MRUK, passthrough camera, face and body tracking, placement, FBX, TMP, SDK upgrades, simpleperf, XR Simulator, Meta's submission walkthrough |
+| **`quest-core`** | 27 | ~4.2k tokens | Router, verify-first guardrail, Unity CLI + live Editor, metavr, setup, settings, Meta VR Glasses readiness (+ Meta's Device Readiness Check), Meta XR Core + Interaction SDKs, CC0 art sourcing, level blockout + headless capture, VR UI, comfort, code review, tests, headset debugging, Perfetto, release build, VRCs, store listing, upload, launch plan |
+| `meta-quest-extras` | 15 | ~1.8k | MRUK, passthrough camera, face and body tracking, placement, FBX, TMP, Meta XR Operator (agent control of a running app), SDK upgrades, simpleperf, XR Simulator, Meta's submission walkthrough |
 | `unity-extras` | 17 | ~1.0k | uGUI and UI Toolkit, audio, physics, NavMesh, URP, Shader Graph, Project Auditor, multiplayer, Vivox, localization |
 | `community-unity-xr` | 11 | ~1.2k | XR Interaction Toolkit, Netcode, Unity 6.3 agent protocol with mobile, performance, shader and CI specialists, test design, MR UI |
 | `community-design-art` | 12 | ~1.3k | XR design reference, GDD, prototyping, playtesting, trailer review, Blender asset pipeline |
@@ -78,6 +81,7 @@ Describe what you want, and Claude picks the skill. The path from idea to store:
 | Block out | "Block out the level from a data file, check the jump distances and show me what the player sees" | `quest-level-blockout`, `quest-asset-sourcing` |
 | Build | "Add hand grabbing, teleport and a world-space menu" | `hz-unity-meta-interaction-sdk`, `hz-unity-meta-quest-ui`, `hz-unity-meta-core-sdk` |
 | Test | "Run the tests, install a dev build on my Quest, show the errors" | `unity-test-runner-cli`, `unity-quest-android-build`, `hz-vr-debug` |
+| VR Glasses | "Make my game work on Meta VR Glasses without controllers and check it in the simulator" | `meta-vr-glasses-unity`, `hz-unity-device-readiness` |
 | Optimise | "It stutters here. Trace it on the headset" | `hz-perfetto-debug`, `hz-unity-code-review` |
 | Ship | "Run the VRC audit, check my store art, upload to ALPHA" | `horizon-vrc-checklist`, `horizon-store-listing-assets`, `horizon-store-publish-unity` |
 
@@ -119,7 +123,9 @@ MCP setup is optional: see [mcp/README.md](mcp/README.md).
 |---|---|---|
 | `unity-quest-dev-setup` | **original** | CLI check, Unity 6 Editor with the Android modules, license, `unity pipeline install`, switch to Android / Meta Quest |
 | `hz-new-project-creation` | Meta | Scaffold a new Meta VR Unity project |
-| `quest-unity-project-settings` | **original** | Every recommended Quest setting, each sourced to a Meta page, with an audit/apply script |
+| `quest-unity-project-settings` | **original** | Every recommended Quest setting, each sourced to a Meta page, with an audit/apply script; target devices including Meta VR Glasses |
+| `meta-vr-glasses-unity` | **original** | Make a Unity Quest app ready for Meta VR Glasses: eyes + pinch input, 70° × 66° view, controller-free flows, performance levels, manifest, testing in the v207 simulator; with a read-only readiness scanner |
+| `hz-unity-device-readiness` | Meta | Meta's Device Readiness Check: controller dependencies, hand-tracking migration, head-locked UI the narrower view would clip |
 | `hz-unity-meta-core-sdk` | Meta | OVRManager, OVRCameraRig, passthrough, hand tracking, anchors, boundaryless, Scene API, Android manifest |
 | `hz-unity-sdk-upgrade`, `hz-api-upgrade` | Meta | Upgrade Meta XR SDK versions and replace deprecated APIs |
 | `hz-unity-project-analyzer` | Meta | Build and maintain a `.agent-docs/` knowledge base of your project |
@@ -135,7 +141,6 @@ MCP setup is optional: see [mcp/README.md](mcp/README.md).
 | `hz-unity-face-tracking`, `hz-unity-meta-movement-sdk-retargeting` | Meta | Face tracking on ARKit-blendshape heads; body tracking retargeting |
 | `hz-unity-placement` | Meta | Correct object placement using Renderer and Collider bounds |
 | `hz-unity-fbx-import` | Meta | Import external FBX models correctly |
-| `hz-unity-device-readiness` | Meta | Audit for hand-tracking readiness and head-locked UI (Meta VR Glasses) |
 | `physics-3d-collision` | Unity | Collisions and triggers (grabbing, throwing, hits) |
 | `initialize-ai-navigation` | Unity | NavMesh for NPCs |
 | `unity-xr` | community (Nice-Wolf-Studio) | XR Interaction Toolkit + OpenXR route. **Pick one stack**: Meta ISDK *or* XRI |
@@ -169,7 +174,8 @@ No vetted skill covers Photon or Normcore yet (see [docs/community-candidates.md
 | `hz-unity-code-review` | Meta | VR performance and rendering review of Unity code (see ERRATA about multiview) |
 | `hz-perfetto-debug`, `hz-simpleperf-debug` | Meta | GPU/CPU frame-timing traces; CPU hotspots |
 | `hz-vr-debug` | Meta | Logcat, crashes, screenshots and video from the headset |
-| `hz-xr-simulator-install-and-configure`, `hz-xr-simulator-control` | Meta | Test without a headset in Meta XR Simulator. With Core SDK ≥ 207, **don't** add `com.meta.xr.simulator` (see [ERRATA](skills/meta-official/ERRATA.md)) |
+| `meta-xr-operator-unity` | **original** | Set up Meta XR Operator so Claude can see and act inside a running XR app (Meta XR Simulator, Quest Link or a development build on the headset), with safety rules and an HTTP client script |
+| `hz-xr-simulator-install-and-configure`, `hz-xr-simulator-control` | Meta | Test without a headset in Meta XR Simulator (207.1 has a Meta VR Glasses profile). With Core SDK ≥ 207, **don't** add `com.meta.xr.simulator` (see [ERRATA](skills/meta-official/ERRATA.md)) |
 | `project-auditor-fixes` | Unity | Project Auditor scan-and-fix loop |
 | `unity-test-runner-cli` | **original** | EditMode/PlayMode tests from the CLI or CI, with a results summariser |
 | `test-designing-guide` | community (nowsprinting) | How to design test cases |
@@ -181,9 +187,9 @@ No vetted skill covers Photon or Normcore yet (see [docs/community-candidates.md
 |---|---|---|
 | `horizon-launch-roadmap` | **original** | Launch timeline, which skill to use when, and the decisions you can't undo |
 | `unity-quest-android-build` | **original** | Dev/release APKs, three build routes, APK checks, build-failure fixes |
-| `horizon-store-publish-unity` | **original** | Dashboard setup → release APK → upload → release channels, OBB, DLC, CI |
+| `horizon-store-publish-unity` | **original** | Dashboard setup → release APK → upload → release channels, device targeting (`quest3+`, "Future devices" for Meta VR Glasses), OBB, DLC, CI |
 | `horizon-vrc-checklist` | **original** | All 80 active VRCs by ID, each with a Unity check and a headset test |
-| `horizon-store-listing-assets` | **original** | Store art specs, metadata limits, IARC rating, privacy policy, Data Use Checkup, pricing, with an image checker |
+| `horizon-store-listing-assets` | **original** | Store art specs, metadata limits, IARC rating, privacy policy, Data Use Checkup, pricing, price A/B tests, Try Before You Buy, bundles, analytics, with an image checker |
 | `hz-unity-platform-sdk` | Meta | Entitlements, achievements, leaderboards, IAP, DLC, rich presence, users |
 | `hz-store-submit` | Meta | Meta's submission walkthrough. **Its specs are out of date**: read [ERRATA.md](skills/meta-official/ERRATA.md) |
 | `submit-game-version` | community (dilmerv) | Real example of build + upload to BETA from Claude Code. Tied to one project; adapt it |
@@ -205,6 +211,16 @@ No vetted skill covers Photon or Normcore yet (see [docs/community-candidates.md
 
 ## Notes and decisions
 
+- **Meta VR Glasses (announced at Connect 2026, shipping spring 2027).** Same OS, Store and v207
+  SDKs as Quest. Eyes aim and a pinch selects; controllers are sold separately, and an app that
+  requires them is blocked behind a "Switch to Controllers" dialog. The view is about 70° × 66°
+  (Quest 3: 110° × 96°). Build for it now with `meta-vr-glasses-unity` and test in Meta XR
+  Simulator 207.1. Condensed facts with sources: [docs/meta-reference/](docs/meta-reference).
+- **Security: Meta's AI Agent Bridge runs Claude Code without permission checks.** In Meta XR Core
+  SDK 207.0.1, the opt-in "Enable AI Agent Bridge" feature (used by the Device Readiness Check's AI
+  mode and the in-Editor assistant) starts `claude` with `--dangerously-skip-permissions`
+  (`Editor/AgentBridge/ClaudeCodeService.cs`). It's off by default. Leave it off, or use it only
+  in a throwaway copy of the project; the skills here drive Claude Code normally instead.
 - **Meta's values vs. Meta's skills.** Meta's own `hz-store-submit` has outdated store specs: icon
   1024 instead of **512**, hero 2560×1440 instead of **3000×900**, 3 screenshots instead of **5**,
   target SDK ≥ 32 instead of **34 for apps created since 2026-03-01**. These were checked against

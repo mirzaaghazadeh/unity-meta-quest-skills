@@ -5,8 +5,8 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
-description: Builds Meta Quest (Horizon OS) Android APKs from a Unity project with the unity CLI, as development or release builds. Offers three routes (a Meta Quest build profile with no code, a BuildPipeline script through --execute-method, or a build inside the open Editor), plus toolchain and module checks, the Quest packaging baseline (APK, ARM64, IL2CPP, API 32/34, ASTC), build-failure troubleshooting, and APK checks with aapt2 and apksigner. Use when asked to build or export a Quest APK, make a dev build to try on the headset, pick a headless or CI build route, or fix an Android, Gradle or IL2CPP build failure. For uploading to Horizon Store release channels, use horizon-store-publish-unity.
+  version: "1.1.0"
+description: Builds Meta Quest (Horizon OS) Android APKs from a Unity project with the unity CLI, as development or release builds, for Quest and Meta VR Glasses. Offers three routes (a Meta Quest build profile with no code, a BuildPipeline script through --execute-method, or a build inside the open Editor), plus toolchain and module checks, the Quest packaging baseline (APK, ARM64, IL2CPP, API 32/34, ASTC), build-failure troubleshooting, and APK checks with aapt2, apksigner and unzip (64-bit libraries only, hand/eye-tracking declarations, no experimental flag or Meta XR Operator layer in release). Use when asked to build or export a Quest APK, make a dev build to try on the headset, pick a headless or CI build route, check a build for Meta VR Glasses, or fix an Android, Gradle or IL2CPP build failure. For uploading to Horizon Store release channels, use horizon-store-publish-unity.
 ---
 
 # Unity → Meta Quest APK build
@@ -37,7 +37,7 @@ rejected: Meta changes these rules.
 | Setting | Required value | Source |
 |---|---|---|
 | Package format | **APK** (`buildAppBundle = false`). Unity documents AAB as "only applicable to builds for Google Play". Meta uploads APK plus optional OBB/asset files | Unity `EditorUserBuildSettings.buildAppBundle`; Meta `ps-assets` |
-| ABI | **ARM64 only** (no ARMv7, no x86) | Meta `hz-store-submit`; Unity Meta Quest profile default |
+| ABI | **ARM64 only** (no ARMv7, no x86). Meta VR Glasses can't run a binary whose native libraries are only 32-bit (a Mono build), even though Quest still can | Meta `hz-store-submit`; Unity Meta Quest profile default; Meta app-compatibility (2026-10-13) |
 | Scripting backend | **IL2CPP** | Unity Meta Quest profile default (ARM64 needs IL2CPP) |
 | `minSdkVersion` | **32** recommended (store floor 29) | Meta manifest requirements page (updated 2026-10-15) |
 | `targetSdkVersion` | **34**. Required for apps created in the Developer Dashboard after **2026-03-01**. Older apps may use 32–34 | Meta blog "Apps must target Android 14", same page |
@@ -47,6 +47,8 @@ rejected: Meta changes these rules.
 | Signing | **Release keystore**, the same one for the app's whole life. APK Signature Scheme v2 | Meta `hz-store-submit` |
 | `versionCode` | Strictly higher than every uploaded build | Meta `hz-store-submit` |
 | Manifest | `installLocation="auto"`, not `debuggable`, `com.oculus.intent.category.VR` on the launcher activity, `com.oculus.supportedDevices` meta-data | Meta manifest page. The Meta XR SDK generates these. Never hand-edit them (see `hz-unity-meta-core-sdk`) |
+| Input declaration | Matches the app: no `oculus.software.handtracking` = controllers only; `required="false"` + `com.oculus.permission.HAND_TRACKING` = both; `required="true"` = hands only. Eye tracking: `oculus.software.eye_tracking` + `com.oculus.permission.EYE_TRACKING` only if gaze or ETFR is used | Meta app-compatibility (2026-10-13); Unity support-meta-vr-glasses (2026-09-30) |
+| No test-only features | Development Build off; no `com.oculus.experimental.enabled` (Experimental Features Enabled marks a build experimental); no Meta XR Operator layer (`libXrApiLayer_METAX_operator`) | Unity in-headset-fov-simulation (2026-09-24); meta-xr-operator/quest (2026-09-10) |
 
 > **Trap:** Unity's **Meta Quest build profile defaults to target API 32** (Unity 6.3 to 6.6 docs).
 > New store apps need **34**. Override it in the profile or Player settings, or pass
@@ -211,10 +213,26 @@ APK=Builds/Quest/<App>.apk
 #   expect: "Verified using v2 scheme (APK Signature Scheme v2): true"
 #   and a certificate DN that is NOT "CN=Android Debug" for a release build
 ls -l "$APK"                                                       # size sanity check
+
+# Input declarations and test-only features (matters most for Meta VR Glasses)
+"$AAPT2" dump xmltree --file AndroidManifest.xml "$APK" \
+  | grep -E -A2 "handtracking|eye_tracking|HAND_TRACKING|EYE_TRACKING|com.oculus.experimental.enabled"
+#   expect: the hand/eye entries the app's input promise needs; no com.oculus.experimental.enabled
+unzip -l "$APK" | awk '$4 ~ /^lib\// {split($4, p, "/"); print p[2]}' | sort -u   # expect only arm64-v8a
+unzip -l "$APK" | grep -i "METAX_operator" && echo "FAIL: Meta XR Operator layer in a release APK"
 ```
 
 Report each check as pass or fail with the actual value. A failure means the build isn't releasable.
 Go back to Step 1, not straight to upload.
+
+**`com.oculus.supportedDevices` and Meta VR Glasses.** Report the value as found; don't edit it.
+With the Unity OpenXR plugin, the APK lists Unity's names (`quest`, `quest2`, `cambria`, `eureka`,
+`quest3s`; there is no VR Glasses entry in OpenXR 1.18.0 or 1.19.0-pre.2). If Meta's own manifest
+patch writes the list and its VR Glasses target is on, Core 207.0.1 adds the internal key
+`stanley` (package source). Meta's pages disagree on the public id (`vrglasses` on the manifest
+page, "not a supported public value" on the compatibility-mode page), and delivery to VR Glasses is
+set by ticking **Future devices** in the Dashboard (`horizon-store-publish-unity`). Details:
+`quest-unity-project-settings` §1 and `meta-vr-glasses-unity`.
 
 ## Step 4: Run it on the headset, then hand off
 
@@ -265,8 +283,15 @@ build step to path A or B. The full recipe, secrets layout and licensing caveats
 - Meta "Apps must target Android 14" (2025-11-24, updated 2026-02-06): https://developers.meta.com/horizon/blog/meta-quest-apps-android-14-march-1
 - Meta OBB and asset files: https://developers.meta.com/horizon/documentation/unity/ps-assets/
 - Meta skills `hz-store-submit`, `hz-new-project-creation`, `hz-api-upgrade` (meta-quest/agentic-tools @ 3a8553d)
+- Meta app compatibility for VR Glasses (64-bit, input declarations, Future devices): https://developers.meta.com/vr/essentials/app-compatibility/ (2026-10-13)
+- Support Meta VR Glasses (Unity; Hand/Eye Tracking Support → manifest): https://developers.meta.com/vr/documentation/unity/unity-support-meta-vr-glasses/ (2026-09-30)
+- Compatibility mode (supportedDevices ids): https://developers.meta.com/vr/essentials/compatibility-mode/ (2026-09-04)
+- Unity FoV simulation (experimental flag): https://developers.meta.com/vr/documentation/unity/in-headset-fov-simulation/ (2026-09-24)
+- Meta XR Operator on Quest (Development builds): https://developers.meta.com/vr/documentation/unity/meta-xr-operator/quest/ (2026-09-10)
+- Package source read 2026-10-17: Core 207.0.1 `Editor/OVRManifestPreprocessor.cs`, `Editor/MetaXROperator/MetaXROperatorBuildProcessor.cs`; Unity OpenXR 1.18.0 / 1.19.0-pre.2 `Runtime/MetaQuest/MetaQuestFeature.cs`
 
-Last verified: 2026-10-16. `templates/QuestBuild.cs` and `templates/QuestPreflight.cs` compile
+Last verified: 2026-10-17 (VR Glasses rows and APK checks; the `unzip` lines were run on a test
+archive, not a real APK); 2026-10-16 (the rest). `templates/QuestBuild.cs` and `templates/QuestPreflight.cs` compile
 with 0 errors and 0 warnings against Unity 6000.6.6f1's managed DLLs, using Unity's bundled
 Roslyn; neither has been run in a project. The macOS SDK tool paths were checked on a 6000.6.6f1
 install. Not verified against a live CLI: whether `--android-*` flags apply on top of a `--profile`

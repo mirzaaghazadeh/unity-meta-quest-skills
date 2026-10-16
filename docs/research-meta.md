@@ -400,3 +400,40 @@ without them. Use one build script per project.
 | Perf targets | /horizon/documentation/unity/unity-perf/ [2024-10-30], /horizon/resources/device-optimization-comparison/ [2026-05-11] |
 | Runtime Optimizer | /horizon/documentation/unity/unity-quest-runtime-optimizer/ [2026-07-31] |
 | Horizon Worlds | /horizon-worlds/ ; uploadvr.com/meta-horizon-studio-upgrade-ai-assistant-horizon-worlds (2025-09-18) ; /horizon/blog/jumpstart-world-building-creator-assistant |
+
+---
+
+## 10. Update 2026-10-17: after Meta Connect 2026
+
+Full write-up with the link-check table: [research-connect-2026-platform.md](research-connect-2026-platform.md).
+Condensed references: [meta-reference/store-2026.md](meta-reference/store-2026.md),
+[meta-reference/ai-tools.md](meta-reference/ai-tools.md).
+
+- **URLs:** every `developers.meta.com/horizon/...` page (docs included) now 302-redirects to
+  `/vr/...`, which the pages name as canonical. The relative `/horizon/...` paths in §1-§9 still
+  resolve; the custom store skills now cite `/vr/` URLs. `/horizon/essentials/ai-tooling-mcp/`
+  (§1, §9) now redirects to `/vr/essentials/metavr-install/`.
+- **Connect 2026** (2026-09-24): Meta VR Glasses (spring 2027; same OS, Store, payments and v207
+  SDKs; eyes and hands first, controllers sold separately; 70° × 66° FoV). The Store session
+  (2026-09-30) named A/B Pricing, AI-Powered Analytics, advanced F2P tooling, more ad placements
+  and VR Glasses prioritization; no doc page describes these yet.
+- **Store delivery to VR Glasses:** Supported Devices **Future devices** (forward-compatible
+  build); `ovr-platform-util --channel "alpha:quest3+"`; `com.meta.store.defaultDeviceTargets`
+  [publish-release-channels-device-targeting 2026-09-04; essentials/app-compatibility 2026-10-13].
+  64-bit is mandatory there. The `vrglasses` value for `com.oculus.supportedDevices` is listed on
+  publish-mobile-manifest (2026-10-15) but called "not currently a supported public value" on
+  essentials/compatibility-mode (2026-09-04).
+- **No changes** to the VRC index (2026-08-19), manifest rules (2026-10-15), asset guidelines
+  (2026-05-11), metadata limits, ovr-platform-util flags or release channels. No VRC or asset type
+  is specific to VR Glasses.
+- **Newly covered store tools** (existing pages, not new at Connect): price A/B testing (US only,
+  2025-10-01), Try Before You Buy incl. achievement-based (2026-06-29), bundles in sales
+  (2026-06-30), benchmarks, demographics, alerts, Meta AI Developer Assistant (2026-09-24). Meta
+  Credits ended for Store purchases on 2026-06-09.
+- **Comfort ratings are verified** on /vr/policy/app-policies/ §5.1 (2026-03-10), which closes the
+  §7 item. That page also requires GRAC ratings for South Korea (§5.2.1).
+- **metavr:** npm 1.8.1 (2026-10-01) is a wrapper-only release; binary still 1.8.0.17.10;
+  `agentic-tools` still at `3a8553d`; `docs/metavr-cli-reference.md` is identical to upstream.
+- **Errata added:** `hz-store-submit` VR Glasses frame-rate and launch-test claims, `metavr store
+  dist upload` limits, four dead links in `hz-unity-platform-sdk` references, and Meta pages that
+  name skills the repo doesn't have.

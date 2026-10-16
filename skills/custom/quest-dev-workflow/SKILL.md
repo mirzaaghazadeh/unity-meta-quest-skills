@@ -5,17 +5,18 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.1.0"
+  version: "1.2.0"
 description: >-
   Start-here map for making a Meta Quest VR game in Unity with Claude Code and
-  shipping it on the Meta Horizon Store. Gives the end-to-end order (verify,
-  set up, build the game, test on the headset, release build, VRC audit, store
-  listing, upload, submit), names the skill that handles each step, and lists
-  the hard rules (confirm before any store upload or submission, never commit
-  keystores, target API 34). Use when starting or planning a Quest Unity
-  project, when unsure which skill fits a task, when the user asks "what's
-  next", "where do I start" or "how do I ship this", or at the start of any
-  multi-step Quest task.
+  shipping it on the Meta Horizon Store, for Quest 3/3S and the upcoming Meta VR
+  Glasses (eyes-and-hands input, v207 SDKs). Gives the end-to-end order (verify,
+  set up, build the game, test on the headset or simulator, release build, VRC
+  audit, store listing, upload, submit), names the skill that handles each
+  step, and lists the hard rules (confirm before any store upload or
+  submission, never commit keystores, target API 34). Use when starting or
+  planning a Quest Unity project, when unsure which skill fits a task, when the
+  user asks "what's next", "where do I start", "how do I ship this" or "does it
+  work on Meta VR Glasses", or at the start of any multi-step Quest task.
 ---
 
 # Quest game workflow: start here
@@ -59,6 +60,21 @@ before acting on a step.
 | 8 | Store listing | `horizon-store-listing-assets`, `review-game-trailer` | Art, copy, rating and privacy policy ready |
 | 9 | Upload and submit | `horizon-store-publish-unity` (ALPHA/BETA first), then Dashboard submission (`hz-store-submit` for the walkthrough) | Build on a test channel, then submitted by the user |
 
+### Also targeting Meta VR Glasses (ships spring 2027)
+
+Same Horizon OS, Store and v207 SDKs as Quest, but eyes target, a pinch selects, controllers are
+sold separately, and the field of view is about 70° × 66°. Users without controllers see
+hand-tracked titles first. Decide at phase 0 whether controllers are required, optional or
+unsupported, then add these steps:
+
+| Phase | Add | Done when |
+|---|---|---|
+| 1 Set up | Core SDK and Interaction SDK **207+** (`hz-unity-sdk-upgrade`), Hand/Eye Tracking Support (`meta-vr-glasses-unity` Step 2) | Readiness scan has no High findings that you intend to ship |
+| 2 Build | `meta-vr-glasses-unity` (gaze + pinch via ISDK, 3° targets, no hover-only actions), `hz-unity-device-readiness` (controller audit, head-locked UI vs the narrower FoV) | Every required flow works with eyes and hands |
+| 3 Iterate | XR Simulator **Meta VR Glasses** profile + Look and Pinch; FoV simulation; `meta-xr-operator-unity` to let the agent drive and screenshot the running app | Flows pass in the simulator with no controllers |
+| 6 Release build | `unity-quest-android-build` VR Glasses checks (ARM64 only, input declarations, no Operator layer, experimental off) | APK checks pass |
+| 9 Upload | Dashboard **Supported Devices**: Future devices + each Quest (`horizon-store-publish-unity`) | Build targets Future devices |
+
 ## 3. Hard rules
 
 - **Ask first** before you upload to any release channel, use `--publish`, touch the LIVE or
@@ -74,7 +90,11 @@ before acting on a step.
 - **One of each:** one interaction stack (Meta Interaction SDK *or* XRI), one build script, one
   verify-first skill (`hz-quest-verify-first`).
 - **Prove it on the device.** Editor Play mode is not proof. Test on the headset or in the
-  simulator, and read the logs (`hz-vr-debug`).
+  simulator, and read the logs (`hz-vr-debug`). Meta VR Glasses hardware isn't out yet: say which
+  checks only the simulator covered.
+- **Experimental agent tools stay out of release builds.** Meta XR Operator works only in
+  Development builds, and Meta's in-Editor AI features run Claude Code with permissions bypassed;
+  ask before enabling them.
 
 ## 4. Quick router
 
@@ -105,6 +125,9 @@ before acting on a step.
 | upload a build or manage channels | `horizon-store-publish-unity` |
 | plan the launch date, Early Access, pre-orders | `horizon-launch-roadmap` |
 | upgrade the Meta XR SDK | `hz-unity-sdk-upgrade`, `hz-api-upgrade` |
+| make the app work on Meta VR Glasses, without controllers, or with look and pinch | `meta-vr-glasses-unity`, then `hz-unity-device-readiness` |
+| check UI against the narrower VR Glasses field of view | `meta-vr-glasses-unity` (Step 4), `hz-unity-device-readiness` |
+| let the agent play, test or screenshot the running app (Meta XR Operator) | `meta-xr-operator-unity` |
 
 ## Bundles
 
@@ -112,5 +135,13 @@ When the library is installed as Claude Code plugins, skills come in five bundle
 `quest-core` (this skill and the main path), `meta-quest-extras` (other Meta Unity
 features and tools), `unity-extras` (other official Unity skills), `community-unity-xr`
 and `community-design-art`. See the repository README for install commands.
+`meta-vr-glasses-unity` and `hz-unity-device-readiness` belong with the main path;
+`meta-xr-operator-unity` and the XR Simulator skills are in `meta-quest-extras`. Check the
+README if a skill isn't where this says.
 
-Last verified: 2026-10-16
+Sources for the VR Glasses rows: https://developers.meta.com/vr/essentials/bring-your-app-glasses/
+(2026-10-13), https://developers.meta.com/vr/documentation/unity/unity-support-meta-vr-glasses/
+(2026-09-30), https://developers.meta.com/blog/meta-connect-recap-start-building-the-future-of-vr/
+(2026-09-24).
+
+Last verified: 2026-10-17

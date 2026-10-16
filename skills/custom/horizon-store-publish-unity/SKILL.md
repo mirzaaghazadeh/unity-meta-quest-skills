@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.1.0"
 description: >-
   Ship a Unity Meta Quest game build to the Meta Horizon Store: one-time
   Developer Dashboard setup (org verification, app record, App ID and
@@ -13,12 +13,14 @@ description: >-
   (IL2CPP, ARM64, target API 34, keystore signing, Bundle Version Code bump),
   a headless build with the Unity CLI, local APK verification, and upload with
   ovr-platform-util upload-quest-build (OBB, asset files/DLC, debug symbols) to
-  ALPHA/BETA/RC/production, promotion between channels, and CI. Use when the
-  user says "upload my Quest build", "push to alpha/beta/RC", "release build for
-  the Horizon Store", "bump the version code", "sign the APK", "ovr-platform-util",
-  "upload-quest-build", or "set up CI for Quest uploads". Complements
-  hz-store-submit (submission and review) and unity-quest-android-build (build
-  routes, dev builds, build-failure troubleshooting).
+  ALPHA/BETA/RC/production, device targeting (Future devices for Meta VR
+  Glasses, quest3+ channel suffix), promotion between channels, and CI. Use
+  when the user says "upload my Quest build", "push to alpha/beta/RC", "release
+  build for the Horizon Store", "bump the version code", "sign the APK",
+  "ovr-platform-util", "upload-quest-build", "ship to Meta VR Glasses", "target
+  Quest 3 only", or "set up CI for Quest uploads". Complements hz-store-submit
+  (submission, review) and unity-quest-android-build (build routes, build
+  failures).
 ---
 
 # Unity build to Meta Horizon Store release channel
@@ -66,7 +68,8 @@ Related skills:
 Sources: publish-organization-verification, publish-reference-platform-command-line-utility,
 publish-release-channels, age-groups (URLs at the end). The DDA URL pattern comes from Meta's
 `hz-store-pwa` skill and is unverified on the docs site. If the link fails, look under
-Organization > Legal Documents in the Dashboard.
+Organization > Legal Documents in the Dashboard. The agreement text itself is public:
+https://developers.meta.com/vr/policy/developer-distribution-agreement/ (updated 2025-04-09).
 
 ## Step 1: Release settings in Unity
 
@@ -80,7 +83,8 @@ Set these in the project, or let `scripts/QuestReleaseBuild.cs` enforce them at 
 | Minimum API Level | **32** recommended (29-34 allowed) | publish-mobile-manifest |
 | **Target API Level** | **34, set explicitly** | Apps created since 2026-03-01 must target 34, and immersive apps allow only 32-34. Unity's "Automatic (highest installed)" can resolve above 34, so don't use it |
 | Scripting Backend | IL2CPP | unity-prepare-for-publish |
-| Target Architectures | ARM64 only (clear ARMv7) | The Store accepts only 64-bit apps (VRC.Quest.Packaging.6) |
+| Target Architectures | ARM64 only (clear ARMv7) | The Store accepts only 64-bit apps (VRC.Quest.Packaging.6). Meta VR Glasses can't run a binary with only 32-bit native libraries at all (app-compatibility) |
+| Target Devices (Meta XR settings) | Every Quest you support | Writes `com.oculus.supportedDevices`. Store delivery to Meta VR Glasses is set by **Future devices** in the Dashboard, not by this list (Step 5a) |
 | Install Location | Automatic | `installLocation` must be `auto` (publish-mobile-manifest) |
 | Development Build | Off | `android:debuggable` must be false or unset |
 | Build App Bundle (AAB) | Off | Store takes an APK under 1 GB plus OBB files under 4 GB (VRC.Quest.Packaging.5) |
@@ -94,6 +98,13 @@ manifest from Meta XR settings rather than hand-editing it (see `hz-unity-meta-c
 then check the **merged** manifest in the built APK in Step 4. Uploads are rejected
 automatically for prohibited permissions. To strip permissions that packages add, use
 `tools:node="remove"` in `Assets/Plugins/Android/AndroidManifest.xml` (permissions-remove).
+
+The merged manifest also tells the system which input the app supports (app-compatibility,
+2026-10-13): no hand-tracking entries means controllers only;
+`oculus.software.handtracking required="false"` plus `com.oculus.permission.HAND_TRACKING` means
+controllers and hands; `required="true"` means hands only. Meta VR Glasses ship without
+controllers, and the Store shows hand-capable titles first to people without controllers. Declare
+hands only once every required flow works with hands (VRC.Quest.Tracking.2).
 
 ## Step 2: Choose the version code
 
@@ -171,6 +182,7 @@ build-tools; set `ANDROID_BUILD_TOOLS` if the script can't find them. It checks:
 package/versionCode/versionName, minSdk and targetSdk ranges, compileSdk >= targetSdk,
 arm64-v8a-only native code, debuggable flag, v2 signature and a non-debug certificate,
 VR category, headtracking, supportedDevices, installLocation, excludeFromRecents, the
+declared input (controllers, hands or both), `com.meta.store.defaultDeviceTargets` if set, the
 1 GB APK limit, prohibited permissions (FAIL) and review-required permissions (WARN).
 
 Then smoke-test on a headset with the Meta CLI (see `metavr-cli`):
@@ -204,6 +216,8 @@ ovr-platform-util upload-quest-build \
 
 - Required flags: `--app-id`, one of `--app-secret`/`--token`, `--apk`, `--channel`, `--age-group`.
 - Channels are case-insensitive. Use `store` for production.
+- Device targets ride on the channel: `--channel "alpha:quest3+"`. The wrapper script adds the
+  suffix from `QUEST_DEVICE_TARGETS` (see Step 5a).
 - Optional: `--obb <file>`, `--assets-dir <dir>`, `--asset-files-config <json>`, `--draft`,
   `--language-packs-dir`, `--inherit-asset-files`, `--exclude-addons`, `--config <json>`.
 - A successful upload prints a **Build ID**. Record it, since `set-release-channel-build`
@@ -216,11 +230,38 @@ Full flag reference, the asset-file JSON format, DLC upload and gotchas are in
 
 Alternatives:
 - `metavr store dist upload --app-id <id> --channel ALPHA --apk <apk> [--obb <obb>] [--notes ..]`
-  uploads a draft unless `--publish` is passed. Meta's `hz-store-submit` says to fall back to the
-  Dashboard if it errors.
+  uploads a draft unless `--publish` is passed. It has no age-group, device-target, asset-file or
+  symbol options (metavr 1.8.0.17.10), so prefer ovr-platform-util for release builds. Meta's
+  `hz-store-submit` says to fall back to the Dashboard if it errors.
 - Unity Editor: **Window > Meta > Tools > Oculus Platform Tool** uploads an existing APK and does
   not build it.
 - Meta Quest Developer Hub, or the Dashboard upload page.
+
+## Step 5a: Device targeting and Meta VR Glasses
+
+Meta VR Glasses (spring 2027) use the same Store, entitlements and add-ons as Quest. Which builds
+reach which device is set per build (target-builds-by-device, 2026-09-04; app-compatibility,
+2026-10-13):
+
+| Where | How |
+|---|---|
+| Dashboard | Build > **Supported Devices**: Quest 2, Pro, 3, 3S and **Future devices**. Select Future devices plus every Quest that should get the build. That marks it forward-compatible, and after VR Glasses ship an approved Production build reaches them with no new APK |
+| Upload | `QUEST_DEVICE_TARGETS="quest3+" scripts/upload-quest-build.sh app.apk alpha` sends `--channel "alpha:quest3+"`. Specifiers: `quest2only`, `questproonly`, `quest3only`, `quest2+`, `questpro+`, `quest3+`, `questpro-`, joined with `\|`. `quest3+` covers the Quest 3 family, VR Glasses and future devices. CLI values override the manifest |
+| Manifest | Optional `<meta-data android:name="com.meta.store.defaultDeviceTargets" android:value="quest3+"/>` presets Supported Devices at upload. Use it only to restrict a build on purpose |
+
+Rules: a build must support at least one device; LIVE must always keep one build with Future
+devices; every build in an app submission must be forward-compatible; a build with no targeting
+("All Devices") already includes VR Glasses. Removing a device from a live build rolls that
+device back to the previous build, so confirm with the user first. To stop selling on a device,
+set **Purchase-Blocked Devices** in a new app submission.
+
+Before targeting VR Glasses, check the build: 64-bit, every required flow works with hands (a
+controller-required immersive app installs but a **Switch to Controllers** dialog blocks it), key
+UI fits a 70° × 66° view (`metavr device fov-sim enable` on a Quest 3/3S/Pro), and the VRC audit
+passes (no VRC is specific to VR Glasses). **Conflict, unverified:** the release-manifest page
+(2026-10-15) lists `vrglasses` as a `com.oculus.supportedDevices` value, while the compatibility
+mode page (2026-09-04) says it is not a supported public value yet. Rely on Future devices.
+Details: `docs/meta-reference/store-2026.md` in this repo.
 
 ## Step 6: Promote a build between channels
 
@@ -264,21 +305,27 @@ For a CI check of Meta project settings, run
 | Build runs on device but entitlement fails | Wrong App ID in Meta > Platform > Edit Settings, or a non-entitled test account. See `hz-unity-platform-sdk`. |
 | APK over 1 GB | Turn on Split Application Binary (OBB under 4 GB), or move content to asset files/DLC. |
 | `metavr store dist` GraphQL / "Invalid parameter" | Don't retry with guessed IDs. Use ovr-platform-util or the Dashboard. |
+| Can't remove a device from the live build | LIVE must keep a forward-compatible build and every launched device must stay covered. Hide the app from a device with Purchase-Blocked Devices instead (Step 5a). |
 
 ## Sources
 
-- https://developers.meta.com/horizon/resources/publish-reference-platform-command-line-utility/ (updated 2026-07-20)
-- https://developers.meta.com/horizon/resources/publish-mobile-manifest/ (updated 2026-10-15)
-- https://developers.meta.com/horizon/documentation/unity/unity-prepare-for-publish/ (updated 2026-04-27)
-- https://developers.meta.com/horizon/resources/publish-release-channels/ (updated 2026-03-23)
-- https://developers.meta.com/horizon/resources/publish-organization-verification/ (updated 2026-08-24)
-- https://developers.meta.com/horizon/resources/age-groups/ (updated 2026-04-02)
-- https://developers.meta.com/horizon/resources/vrc-quest-packaging-1/, -packaging-4/, -packaging-5/
-- https://developers.meta.com/horizon/resources/permissions-prohibited/ , /permissions-remove/
-- https://developers.meta.com/horizon/documentation/unity/unity-platform-tool/ (updated 2026-04-22)
-- https://developers.meta.com/horizon/documentation/unity/ps-assets/ (updated 2024-09-06)
-- https://developers.meta.com/horizon/resources/publish-data-use/ (updated 2026-10-14)
-- https://developers.meta.com/horizon/resources/publish-submit/ (updated 2026-05-08)
-- Meta `metavr-cli` docs (`metavr store dist`, `metavr tools`) and Unity `unity-cli` skill (`unity build`)
+Every `developers.meta.com/horizon/...` page now redirects to `/vr/`; the links below are the
+final URLs.
 
-Last verified: 2026-10-16
+- https://developers.meta.com/vr/resources/publish-reference-platform-command-line-utility/ (updated 2026-07-20)
+- https://developers.meta.com/vr/resources/publish-mobile-manifest/ (updated 2026-10-15)
+- https://developers.meta.com/vr/resources/publish-release-channels-device-targeting/ (updated 2026-09-04)
+- https://developers.meta.com/vr/essentials/app-compatibility/ (updated 2026-10-13), /compatibility-mode/ (updated 2026-09-04), /field-of-view/ (updated 2026-09-25)
+- https://developers.meta.com/vr/documentation/unity/unity-prepare-for-publish/ (updated 2026-04-27)
+- https://developers.meta.com/vr/resources/publish-release-channels/ (updated 2026-03-23)
+- https://developers.meta.com/vr/resources/publish-organization-verification/ (updated 2026-08-24)
+- https://developers.meta.com/vr/resources/age-groups/ (updated 2026-04-02)
+- https://developers.meta.com/vr/resources/vrc-quest-packaging-1/, -packaging-4/, -packaging-5/
+- https://developers.meta.com/vr/resources/permissions-prohibited/ , /permissions-remove/
+- https://developers.meta.com/vr/documentation/unity/unity-platform-tool/ (updated 2026-04-22)
+- https://developers.meta.com/vr/documentation/unity/ps-assets/ (updated 2024-09-06)
+- https://developers.meta.com/vr/resources/publish-data-use/ (updated 2026-10-14)
+- https://developers.meta.com/vr/resources/publish-submit/ (updated 2026-05-08)
+- Meta `metavr-cli` docs (`metavr store dist`, `metavr tools`; `docs/metavr-cli-reference.md`, metavr 1.8.0.17.10) and Unity `unity-cli` skill (`unity build`)
+
+Last verified: 2026-10-17

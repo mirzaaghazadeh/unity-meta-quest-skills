@@ -7,14 +7,14 @@
     "url": "https://github.com/mirzaaghazadeh"
   },
   "metadata": {
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
       "name": "quest-core",
       "displayName": "Quest Core",
-      "description": "Start here. The full path from an empty Unity project to a Horizon Store submission: workflow router, verify-first guardrail, Unity CLI and live Editor control, metavr, Quest setup and settings, Meta XR Core and Interaction SDKs, free CC0 art sourcing, data-driven level blockout with headless screenshots and Quest 3 eye views, VR UI, comfort design, code review, tests, headset debugging, Perfetto, release builds, VRC audit, store listing, upload and launch planning.",
-      "version": "1.1.1",
+      "description": "Start here. The full path from an empty Unity project to a Horizon Store submission: workflow router, verify-first guardrail, Unity CLI and live Editor control, metavr, Quest setup and settings, Meta VR Glasses readiness (porting guide, readiness scanner, Meta's Device Readiness Check), Meta XR Core and Interaction SDKs, free CC0 art sourcing, data-driven level blockout with headless screenshots and Quest 3 eye views, VR UI, comfort design, code review, tests, headset debugging, Perfetto, release builds, VRC audit, store listing, upload and launch planning.",
+      "version": "1.2.0",
       "author": { "name": "Navid Mirzaaghazadeh", "url": "https://github.com/mirzaaghazadeh" },
       "homepage": "https://github.com/mirzaaghazadeh/unity-meta-quest-skills",
       "repository": "https://github.com/mirzaaghazadeh/unity-meta-quest-skills",
@@ -33,6 +33,8 @@
         "./skills/custom/unity-quest-dev-setup",
         "./skills/meta-official/hz-new-project-creation",
         "./skills/custom/quest-unity-project-settings",
+        "./skills/custom/meta-vr-glasses-unity",
+        "./skills/meta-official/hz-unity-device-readiness",
         "./skills/meta-official/hz-unity-meta-core-sdk",
         "./skills/meta-official/hz-unity-meta-interaction-sdk",
         "./skills/custom/quest-asset-sourcing",
@@ -54,9 +56,9 @@
     {
       "name": "meta-quest-extras",
       "displayName": "Meta Quest Extras",
-      "description": "The rest of Meta's official Unity skills: Mixed Reality Utility Kit, passthrough camera access, face and body tracking, object placement, FBX import, TextMesh Pro setup, project analyzer, SDK and API upgrades, simpleperf CPU profiling, Meta XR Simulator, hand-tracking readiness and Meta's store-submission walkthrough.",
-      "version": "1.0.0",
-      "author": { "name": "Meta Platforms, Inc. (curated by Navid Mirzaaghazadeh)" },
+      "description": "The rest of Meta's official Unity skills plus Meta XR Operator setup: Mixed Reality Utility Kit, passthrough camera access, face and body tracking, object placement, FBX import, TextMesh Pro setup, project analyzer, Meta XR Operator (agent control of a running XR app, with safety rules), SDK and API upgrades, simpleperf CPU profiling, Meta XR Simulator and Meta's store-submission walkthrough.",
+      "version": "1.1.0",
+      "author": { "name": "Meta Platforms, Inc. and Navid Mirzaaghazadeh (curated by Navid Mirzaaghazadeh)" },
       "homepage": "https://github.com/meta-quest/agentic-tools",
       "repository": "https://github.com/mirzaaghazadeh/unity-meta-quest-skills",
       "license": "Apache-2.0",
@@ -73,7 +75,7 @@
         "./skills/meta-official/hz-unity-fbx-import",
         "./skills/meta-official/hz-unity-tmp-resources",
         "./skills/meta-official/hz-unity-project-analyzer",
-        "./skills/meta-official/hz-unity-device-readiness",
+        "./skills/custom/meta-xr-operator-unity",
         "./skills/meta-official/hz-unity-sdk-upgrade",
         "./skills/meta-official/hz-api-upgrade",
         "./skills/meta-official/hz-simpleperf-debug",

@@ -5,8 +5,8 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.1.0"
-description: Prepares a machine and a Unity project for Meta Quest development with the unity CLI. Checks or installs the CLI (with consent), installs a Unity 6 Editor with Android Build Support, SDK/NDK and OpenJDK, signs in and activates a license, adds the com.unity.pipeline package so an agent can drive the Editor, opens the project and waits until it's ready, and switches it to Android/Meta Quest. Use when setting up Unity for Quest on a new machine, when `unity` isn't found, when Android modules are missing, when `unity status` shows no Editor, or before Meta hz-unity-* skills that need a live Editor.
+  version: "1.2.0"
+description: Prepares a machine and a Unity project for Meta Quest and Meta VR Glasses development with the unity CLI. Checks or installs the CLI (with consent), installs a Unity 6 Editor (6000.0.66f2+ for Meta XR SDK v207) with Android Build Support, SDK/NDK and OpenJDK, signs in and activates a license, adds the com.unity.pipeline package so an agent can drive the Editor, opens the project and waits until it's ready, switches it to Android/Meta Quest, and covers the optional MCP setup (unity, metavr, Meta's AI Tools panel) with its known Claude Code issue. Use when setting up Unity for Quest on a new machine, when `unity` isn't found, when Android modules are missing, when `unity status` shows no Editor, when metavr tools don't load in Claude Code, or before Meta hz-unity-* skills that need a live Editor.
 ---
 
 # Unity + Quest development setup (CLI)
@@ -22,7 +22,12 @@ Hand-offs:
   `metavr_unity_setup` tool rather than creating the project with the Unity CLI). Come back here at
   Step 4.
 - CLI details (every flag, exit codes, Safe Mode, sandbox caveats) → **`unity-cli`**.
-- Headset connection and developer mode → **`hz-unity-device-readiness`**, **`metavr-cli`**.
+- Headset connection and developer mode → **`metavr-cli`**.
+- Meta VR Glasses readiness (eyes and hands, FoV) → **`meta-vr-glasses-unity`**,
+  **`hz-unity-device-readiness`**. No headset → Meta XR Simulator
+  (**`hz-xr-simulator-install-and-configure`**; with Core 207 use the standalone app from
+  `metavr tools install xrsim`, not the old `com.meta.xr.simulator` package).
+- Letting the agent drive the running app → **`meta-xr-operator-unity`**.
 - First build → **`unity-quest-android-build`**. Store upload → **`horizon-store-publish-unity`**.
 - Quest Player, XR and URP settings → **`quest-unity-project-settings`**.
 - Running Editor scripts **without** a live Editor (`unity run … -executeMethod`, raw
@@ -39,6 +44,12 @@ Hand-offs:
   `unity skill install` or `unity setup claude` on top of it, or Claude ends up with duplicate skills.
 - Use `--format json` for anything you parse, and branch on `success` / `errors[0].code`, not on
   text or stderr.
+- **Meta's AI Tools panel** (Meta XR Core SDK 207: Window > Meta > Meta XR SDK > AI Tools) installs
+  metavr and Meta XR Operator, registers an MCP server for Claude Code (local scope in
+  `~/.claude.json`) and can copy skills into `<project>/.claude/skills`. Its Agent Bridge (Device
+  Readiness AI check, Immersive Debugger assistant) launches Claude Code with
+  `--dangerously-skip-permissions` (Core 207.0.1 source). Treat each of these as an install or
+  config change: explain it and ask first. Skills it copies can duplicate ones from this library.
 
 ## Step 1: The `unity` CLI
 
@@ -62,9 +73,11 @@ Homebrew: `unity self-uninstall -y` removes the script copy.
 ## Step 2: Editor and Android modules
 
 Version choice: Meta recommends **Unity 6.1 or later**. The Meta Quest build profile exists from
-6.1, and the Pipeline package needs 6.0+. Meta XR All-in-One SDK 207.0 (2026-09-22) needs at least
-**6000.0.66f2**, per the library's Meta researcher (developers.meta.com, 2026-10-16). Re-check the
-current SDK's minimum before pinning an older Editor. Default to the newest **LTS** unless the
+6.1, and the Pipeline package needs 6.0+. Meta XR SDK v207 needs at least **6000.0.66f2**: the
+All-in-One 207.0 page (2026-09-22), Meta's Support Meta VR Glasses page (2026-09-30) and Core
+207.0.1's `package.json` (`"unity": "6000.0"`, `"unityRelease": "66f2"`) agree. Meta XR Operator
+also needs the Unity OpenXR Plugin 1.17.0+. Re-check the current SDK's minimum before pinning an
+older Editor. Default to the newest **LTS** unless the
 project pins a version. For XR, use the **Unity OpenXR Plugin**; Meta lists the Oculus XR Plugin as
 deprecated. Detailed Player, XR and URP values are in **`quest-unity-project-settings`**.
 
@@ -197,7 +210,11 @@ claude mcp get metavr      # expect ✔ Connected; tools load in the next Claude
 ```
 
 Re-check without the relay after metavr or Claude Code updates. Note that `metavr mcp install
-claude-code` only prints the `claude mcp add` command unless you pass `--execute`.
+claude-code` only prints the `claude mcp add` command unless you pass `--execute`. npm metavr
+1.8.1 (2026-10-01) changed only the npm wrapper and still installs binary 1.8.0.17.10, so the
+issue should still apply (not re-tested). Meta XR Operator's tools are federated into this same
+`metavr` server by default, so they fail to load the same way; `meta-xr-operator-unity` has a
+route that needs no MCP registration.
 
 ## Final check
 
@@ -221,7 +238,11 @@ Report: CLI version, Editor version, Android modules ok, license ok, Pipeline in
 - Pipeline commands (`switch_build_target`, `list_build_profiles`, `set_autotick`): https://docs.unity3d.com/Packages/com.unity.pipeline@0.8/manual/index.html
 - Meta Quest build profile: https://docs.unity3d.com/6000.3/Documentation/Manual/xr-meta-quest-build-profile.html
 - Meta skills `hz-new-project-creation`, `hz-unity-meta-core-sdk` (meta-quest/agentic-tools @ 3a8553d)
+- Meta XR All-in-One SDK 207.0: https://developers.meta.com/vr/downloads/package/meta-xr-sdk-all-in-one-upm/ (2026-09-22)
+- Support Meta VR Glasses (Unity): https://developers.meta.com/vr/documentation/unity/unity-support-meta-vr-glasses/ (2026-09-30)
+- Meta XR Operator getting started: https://developers.meta.com/vr/documentation/unity/meta-xr-operator/getting-started/ (2026-09-09)
+- Core SDK 207.0.1 source read 2026-10-17: `package.json`, `Editor/AgentBridge/ClaudeCodeService.cs`, `Editor/MetaXROperator/MetaXROperatorProvider.cs`
 
-Last verified: 2026-10-16. The `unity` CLI steps were not run against a live CLI. Confirm flags
+Last verified: 2026-10-17. The `unity` CLI steps were not run against a live CLI. Confirm flags
 with `unity <command> --help` on first use. The batch-mode traps reference was observed in a real
 Unity 6000.6.6f1 + Meta XR Core SDK 207.0.1 project on macOS.

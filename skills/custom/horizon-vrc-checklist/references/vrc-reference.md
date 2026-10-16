@@ -1,12 +1,13 @@
 # Meta Quest VRC reference (all active VRCs)
 
-Source: https://developers.meta.com/horizon/resources/publish-quest-req/ (updated 2026-08-19).
+Source: https://developers.meta.com/vr/resources/publish-quest-req/ (updated 2026-08-19; unchanged
+on 2026-10-17, with no VR Glasses-specific VRC).
 The columns give the Store requirement level for **immersive** apps and **panel (2D)** apps:
 R = Required, Rec = Recommended, N/A. The "Requirement" text summarizes Meta's wording. The
 "Unity check / test" column is our guidance, not Meta's text. Detail pages live at
-`https://developers.meta.com/horizon/resources/vrc-quest-<area>-<n>/` (for example
+`https://developers.meta.com/vr/resources/vrc-quest-<area>-<n>/` (for example
 `vrc-quest-input-4`). The Content and Publishing pages use `vrc-content-<n>` and
-`vrc-publishing-<n>`; that pattern is unverified, so search the index if a link fails.
+`vrc-publishing-<n>` (confirmed in Meta's resources `llms.txt` index on 2026-10-17).
 
 ## Packaging
 
@@ -162,4 +163,4 @@ R = Required, Rec = Recommended, N/A. The "Requirement" text summarizes Meta's w
 | VRC.Publishing.7 | R | R | Search keywords relevant and within guidelines |
 | VRC.Publishing.8 | R | R | Any Meta brand use in metadata follows the Brand Guidelines |
 
-Last verified: 2026-10-16
+Last verified: 2026-10-17

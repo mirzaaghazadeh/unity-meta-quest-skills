@@ -5,9 +5,11 @@
 # Env (required): META_APP_ID, META_AGE_GROUP (TEENS_AND_ADULTS | MIXED_AGES | CHILDREN),
 #                 and META_UPLOAD_TOKEN or META_APP_SECRET
 # Env (optional): RELEASE_NOTES, OVR_PLATFORM_UTIL (path to binary), QUEST_OBB, QUEST_ASSETS_DIR,
-#                 QUEST_ASSET_FILES_CONFIG, QUEST_SYMBOLS_DIR, UPLOAD_AS_DRAFT=1
-# Flags per developers.meta.com/horizon/resources/publish-reference-platform-command-line-utility/
-# (verified 2026-10-16). Secrets are passed as arguments because the tool requires it, so mask them in CI logs.
+#                 QUEST_ASSET_FILES_CONFIG, QUEST_SYMBOLS_DIR, UPLOAD_AS_DRAFT=1,
+#                 QUEST_DEVICE_TARGETS (e.g. "quest3+" or "quest2only|questproonly"; sent as --channel "<channel>:<targets>")
+# Flags per developers.meta.com/vr/resources/publish-reference-platform-command-line-utility/ (2026-07-20)
+# and /vr/resources/publish-release-channels-device-targeting/ (2026-09-04), verified 2026-10-17.
+# Secrets are passed as arguments because the tool requires it, so mask them in CI logs.
 set -euo pipefail
 
 APK="${1:?usage: $0 <apk> <channel> [extra flags]}"
@@ -28,6 +30,13 @@ if [ "$channel_lc" = "store" ] || [ "$channel_lc" = "production" ] || [ "$channe
     exit 3
   fi
   CHANNEL="store"
+fi
+
+if [ -n "${QUEST_DEVICE_TARGETS:-}" ]; then
+  case "$QUEST_DEVICE_TARGETS" in
+    *[!a-z0-9+\|-]*) echo "bad QUEST_DEVICE_TARGETS (use specifiers like quest3+ or quest2only|questproonly)" >&2; exit 2;;
+  esac
+  CHANNEL="$CHANNEL:$QUEST_DEVICE_TARGETS"
 fi
 
 AUTH=()

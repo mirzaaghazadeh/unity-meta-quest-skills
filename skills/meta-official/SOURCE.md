@@ -4,10 +4,10 @@
 |---|---|
 | Publisher | Meta Platforms, Inc. |
 | Repository | https://github.com/meta-quest/agentic-tools |
-| Commit | `3a8553d10a5a1bd1bf9beaaa950243fbbed3b9ea` (2026-09-23) |
+| Commit | `3a8553d10a5a1bd1bf9beaaa950243fbbed3b9ea` (2026-09-24 UTC, "Prepare 1.8.0 Meta VR CLI release"; still the latest on 2026-10-17) |
 | License | Apache-2.0 (copy in `LICENSE`) |
-| Fetched | 2026-10-16 |
-| Meta's page | https://developers.meta.com/horizon/discover/ai-tools/ |
+| Fetched | 2026-10-16 (re-checked 2026-10-17: no newer commit, `docs/metavr-cli.md` unchanged) |
+| Meta's page | https://developers.meta.com/vr/discover/ai-tools/ and https://developers.meta.com/vr/essentials/agent-skills/ (2026-09-29) |
 
 The skill folders here are copied unchanged from `skills/` in the repo at the commit above.
 
@@ -40,4 +40,8 @@ git clone --depth 1 https://github.com/meta-quest/agentic-tools.git /tmp/agentic
 diff -rq /tmp/agentic-tools/skills ./   # review what changed before copying over
 ```
 
-Once installed, `metavr skills` can install and update the bundle for you.
+`metavr skills install|update` can also fetch Meta's published bundle, but it writes to the
+user-level `~/.agents/skills` (and, with `--agent claude_code`, links into Claude Code's folder).
+Meta's own setup routes (`metavr init`, the `meta-vr` plugin) install the same skills. Use either
+those or this folder, not both, or the agent sees two copies of each skill
+(`docs/meta-reference/ai-tools.md` §3).

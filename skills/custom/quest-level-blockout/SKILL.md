@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.1.0"
 description: >-
   Blocks out a Quest level from a data file and reviews it without a headset:
   every layout value in one JSON file, a validator that measures jump gaps,
@@ -13,7 +13,7 @@ description: >-
   design rules, an Editor generator that rebuilds the scene from the data (grid
   textured boxes with world-space UVs, separate gameplay collision, editor-only
   labels), and headless review images (viewpoint screenshots, a top-down map,
-  and a Quest 3 per-eye stereo render). Includes three compile-tested C#
+  and a Quest 3 or Meta VR Glasses per-eye stereo render). Includes three compile-tested C#
   templates. Use when the user asks to block out, grey-box or prototype a
   level, design a parkour, platformer or shooter route, check jump distances,
   regenerate a scene from data, or "show me what the player sees" without a
@@ -83,6 +83,14 @@ Hand-offs:
      asymmetric frustum per eye, the eyes an IPD apart, and editor-only objects hidden. The default
      angles and IPD are approximations (**unverified**). Not reproduced: lens blur, foveated
      rendering, the device GPU.
+   - **Meta VR Glasses eyes:** override the same `eyes` block (no code change). The render extent
+     from Meta XR Simulator's VR Glasses profile is 37° temporal, 37° nasal, 34° up and down, at
+     1728 × 1760 per eye (render-scale page; the profile itself reports 1680 × 1760):
+     `"fovTowardsNose": 37, "fovAwayFromNose": 37, "fovUp": 34, "fovDown": 34, "width": 1728, "height": 1760`.
+     To approximate what a person actually sees (70° × 66°), use the Core SDK FoV mask's default
+     angles instead: `"fovTowardsNose": 35, "fovAwayFromNose": 35, "fovUp": 25, "fovDown": 41`
+     (read from Core 207.0.1 source, not a docs page). Compare it with the Quest 3 render to find
+     landmarks, signs or HUD that fall outside the narrower view. Details: `meta-vr-glasses-unity`.
    - Look at every image after every change, and fix what you see before showing the user.
 6. **Iterate:** edit the JSON → regenerate → re-capture. Once the layout is approved, swap the visuals
    (art pass) without touching the collision or the data.
@@ -168,5 +176,6 @@ unity run <project> -- -executeMethod QuestBlockout.SceneCapture.Eyes
 - `Matrix4x4.Frustum`: https://docs.unity3d.com/ScriptReference/Matrix4x4.Frustum.html
 - EditorOnly tag stripped from builds: https://docs.unity3d.com/Manual/Tags.html
 - Comfort for VR locomotion: Meta `hz-immersive-designer`
+- Meta VR Glasses simulator profile (37/37/34/34°): https://developers.meta.com/vr/documentation/unity/xrsim-getting-started/ (2026-09-03); render target 1728 × 1760: https://developers.meta.com/vr/essentials/render-scale/ (2026-09-01); 70° × 66° FoV: https://developers.meta.com/vr/essentials/field-of-view/ (2026-09-25)
 
-Last verified: 2026-10-16
+Last verified: 2026-10-17 (VR Glasses eyes, not rendered yet); 2026-10-16 (the rest)

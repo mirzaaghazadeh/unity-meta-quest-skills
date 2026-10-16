@@ -5,7 +5,8 @@
 # Needs Android build-tools (aapt2, apksigner). Set ANDROID_BUILD_TOOLS=/path/to/build-tools/<ver>
 # if they are not on PATH; the script also searches ANDROID_HOME and Unity Hub installs.
 # Exit code: 0 = no FAIL, 1 = at least one FAIL, 2 = usage/tooling error.
-# Rules verified 2026-10-16. Re-verify with: metavr docs search "release build manifest requirements"
+# Rules verified 2026-10-17 (publish-mobile-manifest 2026-10-15, essentials/app-compatibility 2026-10-13).
+# Re-verify with: metavr docs search "release build manifest requirements"
 set -u
 
 APK="${1:-}"
@@ -138,8 +139,25 @@ else
   if echo "$XMLTREE" | grep -q '"com.oculus.supportedDevices"'; then
     devices=$(echo "$XMLTREE" | grep -A2 '"com.oculus.supportedDevices"' | sed -n 's/.*android:value([^)]*)="\([^"]*\)".*/\1/p' | head -n 1)
     pass "com.oculus.supportedDevices=${devices:-<unparsed>}"
+    echo "INFO  Meta VR Glasses delivery is set by Dashboard targeting (Supported Devices > Future devices), not by this list; Meta's pages disagree on a 'vrglasses' value (Core SDK 207 writes 'stanley')"
   else
     fail "missing com.oculus.supportedDevices meta-data (set Target Devices in Meta XR settings)"
+  fi
+  # Declared input (essentials/app-compatibility, 2026-10-13): none = controllers only,
+  # handtracking required=false + HAND_TRACKING = controllers and hands, required=true = hands only
+  if echo "$XMLTREE" | grep -q '"oculus.software.handtracking"'; then
+    ht=$(echo "$XMLTREE" | grep -A4 '"oculus.software.handtracking"' | grep -m1 ':required(' | sed -n 's/.*)=\(.*\)$/\1/p' | sed 's/ (Raw.*//; s/"//g')
+    case "$ht" in
+      true|0xffffffff) echo "INFO  declares hands only (handtracking required=true): every flow must work without controllers";;
+      *) echo "INFO  declares controllers and hands (handtracking required=${ht:-false}): every declared mode must work alone (Tracking.2)";;
+    esac
+    echo "$XMLTREE" | grep -q '"com.oculus.permission.HAND_TRACKING"' || warn "oculus.software.handtracking without com.oculus.permission.HAND_TRACKING"
+  else
+    warn "no hand-tracking declaration: controllers only. Meta VR Glasses ship without controllers and show a 'Switch to Controllers' dialog"
+  fi
+  if echo "$XMLTREE" | grep -q '"com.meta.store.defaultDeviceTargets"'; then
+    dt=$(echo "$XMLTREE" | grep -A2 '"com.meta.store.defaultDeviceTargets"' | sed -n 's/.*android:value([^)]*)="\([^"]*\)".*/\1/p' | head -n 1)
+    echo "INFO  com.meta.store.defaultDeviceTargets=${dt:-<unparsed>} presets Supported Devices at upload (overridden by an ovr-platform-util --channel suffix)"
   fi
   il=$(echo "$XMLTREE" | grep "installLocation" | sed -n 's/.*installLocation([^)]*)=\([^ ]*\).*/\1/p' | head -n 1)
   case "$il" in

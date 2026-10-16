@@ -54,16 +54,36 @@ the conversation). Check again after each metavr or Claude Code update, and drop
 direct command connects. The `npx -y metavr mcp server` form from `mcp.json.example` can be wrapped
 the same way.
 
+**Still expected on 2026-10-17 (not re-tested):** npm `metavr` 1.8.1 (2026-10-01) changed only the
+npm download wrapper and still installs binary 1.8.0.17.10, the version this was seen with.
+
+## Meta XR Operator
+
+Meta XR Operator (experimental, in Meta XR Core SDK v207+) runs an MCP server inside the running
+Unity app and an MCP proxy for the agent. `metavr xroperator enable` (the default) federates the
+proxy's tools into metavr's own MCP server, so with metavr registered you don't need a second
+Operator entry. Check with `metavr xroperator status`. Unity setup: the Unity skills and
+`docs/meta-reference/unity-xr-operator.md`; cross-engine summary: `docs/meta-reference/ai-tools.md` §5.
+
 ## Avoid duplicates
 
-- Meta warns that each install route (`metavr init`, the `meta-vr` plugin, `metavr mcp install`)
-  registers its **own** metavr server. Pick one.
-- The `meta-vr` Claude Code plugin and Unity's `unity@unity-agent-plugin` also install the same
-  skills that are already in this library. If you install the plugins, don't also copy the matching
-  folders from `skills/`, or Claude sees two copies of each skill.
+- Each Meta route registers its **own** metavr server under its own name: `metavr init`, the
+  `meta-vr` plugin, `metavr mcp install`, the Meta Horizon extension for VS Code (which also
+  registers it in Cursor), and MQDH's separate MCP server. Keep one entry (`claude mcp list`) and
+  remove the rest (Meta's troubleshooting page, 2026-08-27).
+- Meta now says `metavr init` "already installs these skills and configures the MCP server", and to
+  use the plugin only without it (2026-08-31). Both install the same skills that are already in
+  this library's `skills/meta-official/`, as does `metavr skills install` (into `~/.agents/skills`).
+  Use one source of Meta's skills, or Claude sees two copies of each.
+- Unity's `unity@unity-agent-plugin` likewise duplicates `skills/unity-official/`.
 - Don't run Unity's older AI Assistant MCP (`com.unity.ai.assistant`, now deprecated) next to `unity mcp`.
 
 ## Sources
 
-- Meta: https://developers.meta.com/horizon/essentials/ai-tooling-mcp/ and the `meta-quest/agentic-tools` README (`.mcp.json`)
+- Meta: https://developers.meta.com/vr/essentials/metavr-install/ (2026-08-31; the old
+  `/horizon/essentials/ai-tooling-mcp/` page now redirects here),
+  https://developers.meta.com/vr/essentials/metavr-other-tools/ (2026-08-31),
+  https://developers.meta.com/vr/essentials/metavr-troubleshooting/ (2026-08-27),
+  https://developers.meta.com/vr/documentation/unity/meta-xr-operator/ (2026-09-09), and the
+  `meta-quest/agentic-tools` README (`.mcp.json`)
 - Unity: `docs/research-unity.md` §1 and §5 (Unity CLI docs, https://docs.unity.com/en-us/unity-cli/llms.txt)

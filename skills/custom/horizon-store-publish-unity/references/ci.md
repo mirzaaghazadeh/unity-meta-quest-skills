@@ -25,6 +25,8 @@ or macOS ("limited features"). Meta XR SDK v207 needs Unity 6000.0.66f2 or later
 7. **Verify**: `scripts/verify-quest-apk.sh Builds/Quest/app.apk`. A non-zero exit fails the job.
 8. **Upload**: `scripts/upload-quest-build.sh Builds/Quest/app.apk alpha`, with `META_APP_ID`,
    `META_UPLOAD_TOKEN` and `META_AGE_GROUP` from secrets and `RELEASE_NOTES` from the changelog.
+   Set `QUEST_DEVICE_TARGETS` (for example `quest3+`) only if the build must be device-targeted;
+   the wrapper sends it as `--channel "alpha:quest3+"`, which overrides the manifest default.
    Never upload to `store` from CI without a manual approval gate.
 9. **Archive**: the APK, the IL2CPP symbols (`*.sym.so`), the Unity CLI provenance manifest, and
    the uploaded Build ID.

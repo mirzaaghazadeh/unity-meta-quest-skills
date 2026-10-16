@@ -33,8 +33,24 @@ higher **target**: interactive apps should hit at least 72 FPS.
 | Advice | More draw-call sensitive: batch and instance; lower render scale; lower-res textures; limit post-processing | More memory for textures; use runtime device detection to scale quality |
 
 Quest 3S, Quest Pro and Meta VR Glasses are not on that page. Treat Quest 3S like Quest 3 for
-draw calls and triangles (Meta groups them in unity-perf), but test it separately. **unverified**:
-Quest 3S specific memory and resolution. Check with `metavr docs search "Quest 3S specifications"`.
+draw calls and triangles (Meta groups them in unity-perf), but test it separately.
+
+## Quest 3S and Meta VR Glasses (compare-devices 2026-09-30; render-scale 2026-09-01; memory-ram 2026-08-31; cpu-gpu-levels 2026-09-11)
+
+| | Quest 3S | Meta VR Glasses (ships spring 2027) |
+|---|---|---|
+| Chipset / RAM | XR2 Gen 2 / 8 GB | XR2 Gen 3 / 12 GB |
+| Panel per eye | 1832 × 1920 (20 PPD) | 2412 × 2288 micro-OLED (37 PPD) |
+| Render target at scale 1.0 | 1680 × 1760 | 1728 × 1760 (simulator profile: 1680 × 1760) |
+| FoV | 96° × 90° | 70° × 66° nominal |
+| Refresh | 72–120 Hz (unity-set-disp-freq 2026-10-01) | 120 Hz on the spec page; simulator 90/120 |
+| PSS memory kill limit | 5.75 GiB | 5.75 GiB |
+| Performance levels | Up to GPU 5 with dynamic resolution; CPU/GPU trading | Design to CPU 4 / GPU 4; no GPU 5, dual-core or trading; CPU Boost 4 → 8 from a refilling budget |
+| Draw calls / triangles | As Quest 3 (unity-perf) | **Not published.** Meta: a Quest 3 app holding its rate at nominal should match it; geometry-heavy tiled passes gain, full-screen passes don't (optimize-performance 2026-09-19) |
+
+Test plan for VR Glasses (test-your-app 2026-09-25): profile with dynamic resolution off and fixed
+foveation first, then on; run the busiest scenes for 45 minutes or the content length; thermals
+need real hardware (glasses and puck are separate thermal domains).
 
 ## Draw calls and triangles by workload (unity-perf, 2024-10-30)
 
@@ -59,4 +75,4 @@ ones.
 - **RenderDoc Meta Fork**: `metavr tools install renderdoc`.
 - Lock CPU/GPU levels before comparing captures (unity-perf).
 
-Last verified: 2026-10-16
+Last verified: 2026-10-17 (Quest 3S / VR Glasses section); 2026-10-16 (the rest)

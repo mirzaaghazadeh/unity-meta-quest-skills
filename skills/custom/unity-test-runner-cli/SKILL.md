@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.0.1"
 description: Sets up, runs and reads Unity Test Framework tests (EditMode and PlayMode) for a Unity or Meta Quest project from the command line. Covers test assembly (.asmdef) layout, `unity test` in batch and CI, `run_tests` against a live Editor, PlayMode runs on a Quest player, and summarizing NUnit3 or JUnit result XML with the bundled script. Use when asked to add or write unit tests, run tests headlessly or in CI, find out why tests fail, re-run failing tests, or summarize a test-results.xml.
 ---
 
@@ -48,6 +48,7 @@ unity recompile --project-path <project> --format json   # 0 ok, 6 compile error
 | Editor is open for this project | **Live:** `unity command run_tests` | Warm, about a second. A batch run can't open a project an Editor holds open |
 | No Editor, local or CI | **Batch:** `unity test` | Clean process, report file, exit codes CI can trust |
 | Need a real headset (XR subsystems, performance, input) | **Player:** `-testPlatform Android` | PlayMode tests built into a test player on the Quest |
+| Check a live XR session end to end (gaze and pinch, hands, UI clicks, screenshots) without writing test code | **`meta-xr-operator-unity`** (Meta XR Operator, experimental) | The agent drives the running app in the XR Simulator or a Development build. It complements tests; it doesn't produce NUnit results |
 
 ### Live Editor
 
@@ -152,6 +153,7 @@ each failure is a `<test-case fullname=… result="Failed">` with `<failure><mes
 - Test Framework command-line reference (6000.3): https://docs.unity.com/en-us/engine/6000.3/manual/programming-environment/test-framework-introduction/reference-command-line.md
 - Run PlayMode tests in a Player: https://docs.unity.com/en-us/engine/6000.3/manual/programming-environment/test-framework-introduction/running-tests/workflow-run-playmode-test-standalone.md
 - NUnit result XML format: https://docs.nunit.org/articles/nunit/technical-notes/usage/Test-Result-XML-Format.html
+- Meta XR Operator overview: https://developers.meta.com/vr/documentation/unity/meta-xr-operator/ (2026-09-09)
 
-Last verified: 2026-10-16. Not verified: `unity test --mode Android`, and on-device runs against a
+Last verified: 2026-10-17 (Operator row); 2026-10-16 (the rest). Not verified: `unity test --mode Android`, and on-device runs against a
 real Quest. The summarizer was tested on sample NUnit3 and JUnit files only.

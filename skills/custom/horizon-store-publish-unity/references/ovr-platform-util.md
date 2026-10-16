@@ -1,15 +1,16 @@
 # ovr-platform-util reference (Meta Quest builds)
 
-Condensed from Meta's "Oculus Platform Command Line Utility" page (updated 2026-07-20) and
-"Asset Files" page (updated 2024-09-06). Re-check flags with `ovr-platform-util <command> --help`
-or `metavr docs fetch https://developers.meta.com/horizon/resources/publish-reference-platform-command-line-utility/`
-because the tool updates itself (`self-update`).
+Condensed from Meta's "Oculus Platform Command Line Utility" page (updated 2026-07-20), "Target
+app builds by device" (updated 2026-09-04) and "Asset Files" (updated 2024-09-06). Re-check flags
+with `ovr-platform-util <command> --help` or
+`metavr docs fetch https://developers.meta.com/vr/resources/publish-reference-platform-command-line-utility/`
+because the tool updates itself (`self-update`). Unchanged as of 2026-10-17.
 
 ## Get the tool
 
 - `metavr tools install platform-utils` (alias `ovr-platform-util`), the managed install.
-- Windows: https://developers.meta.com/horizon/downloads/package/platform-utils-cli-pc/
-- macOS: https://developers.meta.com/horizon/downloads/package/platform-utils-cli-osx/
+- Windows: https://developers.meta.com/vr/downloads/package/platform-utils-cli-pc/
+- macOS: https://developers.meta.com/vr/downloads/package/platform-utils-cli-osx/
 - Linux (experimental): `https://www.oculus.com/download_app/?id=5159709737372459&access_token=OC%7C5159709737372459%7C`
 - Run `ovr-platform-util version` to check it and `ovr-platform-util self-update` to update it.
 
@@ -57,6 +58,26 @@ ovr-platform-util upload-quest-build --age-group MIXED_AGES \
 The page lists `--age-group` as required but also says an upload without one goes to "draft"
 status. Always pass it.
 
+### Device targets on upload
+
+Append device specifiers to the channel, joined with `|` (target-builds-by-device, 2026-09-04):
+
+```bash
+ovr-platform-util upload-quest-build --age-group TEENS_AND_ADULTS --app-id "$META_APP_ID" \
+  --token "$META_UPLOAD_TOKEN" --apk app.apk --channel "alpha:quest3+"
+```
+
+| Specifier | Meaning |
+|---|---|
+| `quest2only`, `questproonly`, `quest3only` | That device only |
+| `quest2+`, `questpro+`, `quest3+` | That device and newer. `quest3+` = Quest 3 family, Meta VR Glasses and future devices |
+| `questpro-` | Quest Pro and older |
+
+CLI (and MQDH) values override `com.meta.store.defaultDeviceTargets` in the manifest. In the
+Dashboard the same choice is the build's **Supported Devices**, where **Future devices** makes a
+build forward-compatible. LIVE must always keep one forward-compatible build, and builds in an
+app submission must be forward-compatible. `metavr store dist upload` has no equivalent option.
+
 ## Other commands
 
 | Command | Required | Optional | Use |
@@ -96,7 +117,11 @@ ovr-platform-util set-release-channel-build --age-group TEENS_AND_ADULTS \
 }
 ```
 
-  The manifest page lists the identifiers `quest2`, `questpro`, `quest3`, `quest3s` and `vrglasses`.
+  The manifest page (2026-10-15) lists the identifiers `quest2`, `questpro`, `quest3`, `quest3s`
+  and `vrglasses`. Whether asset-file `supportedDevices` accepts `vrglasses` is unverified: the
+  compatibility-mode page (2026-09-04) says VR Glasses aren't a supported public manifest value
+  yet, and Meta XR Core SDK 207.0.1 writes the internal key `stanley` (per this library's
+  `docs/meta-reference/unity-vr-glasses.md`).
 - DLC linked to IAP: the config JSON associates DLC files with IAP SKUs set up in the Dashboard.
   The exact schema is not on the asset-files page. Look it up with
   `metavr docs search "asset files config IAP sku DLC"`. Runtime download code lives in

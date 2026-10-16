@@ -1,8 +1,9 @@
 # Store policy, pricing and promotion details
 
-Every value below comes from developers.meta.com and was fetched on 2026-10-16. The page date is
-in brackets. Anything marked **unverified** was not confirmed on a Meta page. Look it up with
-`metavr docs search "<topic>"` before quoting it to the user.
+Every value below comes from developers.meta.com (now under `/vr/resources/<page>/`) and was
+fetched on 2026-10-16, with the experiment, trial, bundle and analytics sections added on
+2026-10-17. The page date is in brackets. Anything marked **unverified** was not confirmed on a
+Meta page. Look it up with `metavr docs search "<topic>"` before quoting it to the user.
 
 ## Prerequisites to publish
 - **Org verification** [2026-08-24]: admin (government ID, usually minutes) or business
@@ -91,3 +92,53 @@ in brackets. Anything marked **unverified** was not confirmed on a Meta page. Lo
   raised release-channel limit. Meta's hz-store-submit skill puts that threshold at 200 users.
 - Recertify **yearly**, or the app is removed from the Store and loses platform features.
 - Test users are exempt while a request is pending.
+
+## Price A/B testing [monetization-price-ab-testing 2025-10-01]
+- Dashboard > app > **Growth > Price A/B Testing > Create Pricing Experiment**. Needs the App
+  Submission, Manage App and View App permissions.
+- Types: **boundary** (one price above and one below the current price) and **incrementality**
+  (how big a change pays off).
+- The start date is at least **3 days** after setup; the tool suggests the earliest end date for a
+  significant result; maximum **90 days**. Tests start and end at 11:00 Pacific.
+- **United States only.** A submitted test can't be edited, only cancelled and resubmitted.
+  Results arrive by email.
+- If a test (or a later price change) falls within **30 days** of a sale event, sale eligibility
+  may suffer.
+- Connect 2026 (session posted 2026-09-30) listed "A/B Pricing" as new. **unverified**: what
+  changed; the page still says US only.
+
+## Try Before You Buy [try-before-you-buy 2026-06-29; Meta blog 2026-08-11]
+- Dashboard > Growth > **Try before you buy** > Enable Now. Only for published Store apps;
+  **not for 2D apps**.
+- Time-based: 15-30 minutes in 5-minute steps. Achievement-based: the trial ends when a chosen
+  "simple" achievement unlocks (implement it with the Platform SDK first), with an optional
+  fallback time.
+- Audience 25/50/75/100%, picked at random. Below 100% it runs as a **30-day experiment**; 100%
+  stays on until disabled. Meta suggests ≤ 50% for the first trial.
+- One trial per user per app; trials pause when the headset comes off; no IAP or DLC during a
+  trial, but achievements are kept. Disabling ends every trial at once with an upsell.
+- Analytics: probability of conversion lift (Bayesian, combined with prior experiments), change in
+  conversion, estimated purchase-value lift, weekly peer benchmarks by genre.
+
+## Bundles, add-ons and Meta Credits
+- Bundles [monetization-bundles 2026-06-30; blog 2026-08-11]: can be added to promo groups so they
+  join store-wide sales; per-country base price; live bundles can be edited without review
+  (descriptions and assets are still reviewed); scheduled changes go live 3 days later.
+- Add-ons [working-with-add-ons 2026-10-14; add-ons-setup 2026-09-28]: bulk TSV upload (prices in
+  **USD only**, converted at purchase); a consumable that the app doesn't consume within **3 days
+  is refunded automatically**; Store-visible add-ons need about **7 days** of review; add-ons can
+  have their own IARC rating (higher than the base app only if paid).
+- Meta Credits [2026-06-09]: no longer usable for Store purchases; Horizon Worlds only.
+
+## Analytics and alerts [publish-metrics-benchmarks 2026-05-22; user-demographics 2026-05-06; publish-analytics-alerts 2025-10-01]
+- All three need more than (or at least) **100 lifetime active users**. Demographics also needs
+  DUC compliance.
+- Benchmarks: weekly (Sun-Sat) comparison against segments of 15+ apps: reach→PDP, PDP→purchase,
+  add-on revenue per active user, retention, crash rate.
+- Alerts: Analytics > Alerting. Universal alerts ("Low User Crash Rate", "Low App Ratings",
+  "High Average Max Consecutive Stale Frames") go to org admins; no crash or performance alerts for 2D apps. The August 2026 blog lists
+  subscribe-once threshold alerts: crash rate > 5%, Quest 3 average FPS < 72, each 1-star rating,
+  startup > 19 s, plus chart annotations for releases and OS updates.
+- **unverified**: the "AI-Powered Analytics" and "PREQ alerts" named at Connect 2026. The Meta AI
+  Developer Assistant [ai-developer-assistant 2026-09-24] already answers analytics questions in
+  the Dashboard.

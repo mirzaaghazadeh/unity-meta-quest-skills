@@ -21,7 +21,7 @@ You need these to **use** the skills, not to install them:
 | Unity CLI (`unity`) | Drives the Editor, builds, tests | `curl -fsSL https://unity.com/install.sh \| bash` or `brew install --cask unity-cli` |
 | `com.unity.pipeline` in each project | Lets Claude control the open Editor | `unity pipeline install` (inside the project) |
 | Meta VR CLI (`metavr`) | Headset control, logs, traces, Meta docs search, store upload | `curl -fsSL https://developers.meta.com/horizon/install-cli/ \| sh`, or `npx -y metavr` |
-| Quest in Developer Mode | Testing on the device | https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/ |
+| Quest in Developer Mode | Testing on the device | https://developers.meta.com/vr/documentation/native/android/mobile-device-setup/ |
 | Meta developer account and organization | Publishing | https://developer.meta.com |
 
 The `unity-quest-dev-setup` skill walks Claude through all of this, asking before it installs anything.
@@ -35,8 +35,8 @@ install any combination.
 
 | Bundle | Skills | Always-on context | Contents |
 |---|---|---|---|
-| `quest-core` | 25 | ~3.5k tokens | **Start here.** Workflow router, guardrail, Unity CLI, metavr, setup, Meta XR Core + Interaction SDKs, CC0 art sourcing, level blockout + headless capture, UI, comfort, tests, debugging, release build, VRCs, store listing, upload |
-| `meta-quest-extras` | 15 | ~1.7k | MRUK, passthrough camera, face/body tracking, placement, FBX, TMP, SDK upgrades, simpleperf, XR Simulator, Meta's submission walkthrough |
+| `quest-core` | 27 | ~4.2k tokens | **Start here.** Workflow router, guardrail, Unity CLI, metavr, setup, Meta VR Glasses readiness, Meta XR Core + Interaction SDKs, CC0 art sourcing, level blockout + headless capture, UI, comfort, tests, debugging, release build, VRCs, store listing, upload |
+| `meta-quest-extras` | 15 | ~1.8k | MRUK, passthrough camera, face/body tracking, placement, FBX, TMP, Meta XR Operator, SDK upgrades, simpleperf, XR Simulator, Meta's submission walkthrough |
 | `unity-extras` | 17 | ~1.0k | uGUI/UI Toolkit, audio, physics, NavMesh, URP, Shader Graph, Project Auditor, multiplayer, Vivox, localization |
 | `community-unity-xr` | 11 | ~1.2k | XR Interaction Toolkit, Netcode, Unity 6.3 agent protocol + mobile/perf/shader/CI specialists, test design, MR UI |
 | `community-design-art` | 12 | ~1.3k | XR design reference, GDD, prototyping, playtesting, trailer review, Blender asset pipeline |
@@ -77,7 +77,7 @@ show up with the bundle as a prefix, such as `quest-core:unity-cli`.
 
 ## B. `npx skills`
 
-[skills.sh](https://skills.sh)'s CLI finds all 80 skills, grouped by bundle. It needs Node.js.
+[skills.sh](https://skills.sh)'s CLI finds all 82 skills, grouped by bundle. It needs Node.js.
 
 ```bash
 # see what's available

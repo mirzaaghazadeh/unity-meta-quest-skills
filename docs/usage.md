@@ -32,6 +32,8 @@ Copy the prompts and adapt them. Each row says which skill does the work.
 | 3 | No headset | "Set up the Meta XR Simulator so I can test grabbing without the Quest." | `hz-xr-simulator-install-and-configure`, `hz-xr-simulator-control` |
 | 4 | Tests | "Add EditMode tests for the puzzle logic and run them from the CLI." | `unity-test-runner-cli`, `test-designing-guide` |
 | 5 | On device | "Install a dev build on my Quest, launch it and show me any errors in the log." | `unity-quest-android-build`, `hz-vr-debug` |
+| 5 | VR Glasses | "Make my game work on Meta VR Glasses without controllers, scan it for problems and test it in the simulator." | `meta-vr-glasses-unity`, `hz-unity-device-readiness` |
+| 5 | Agent playtest | "Set up Meta XR Operator so you can play my game in the simulator and check the menu works." | `meta-xr-operator-unity` |
 | 5 | Performance | "It stutters when the lanterns light up. Capture a trace on the headset and tell me why." | `hz-perfetto-debug`, `hz-unity-code-review`, `scenario-unity-performance` |
 | 6 | Release build | "Make a signed release APK with target API 34 and check it." | `unity-quest-android-build` |
 | 7 | Store checks | "Run the VRC audit on this project and list what fails, by VRC ID." | `horizon-vrc-checklist` |
