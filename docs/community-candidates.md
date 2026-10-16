@@ -6,7 +6,7 @@ Evaluated 2026-10-16. Scope: third-party and community Agent Skills (folders wit
 - **Search:** GitHub (`gh search repos`, `gh search code "filename:SKILL.md <topic>"` for Unity, OpenXR, XRI, Meta Quest, Netcode, Photon, Normcore, URP shaders, MonoBehaviour, Blender bpy, playtest, GDD, trailer, store page, VR comfort, profiler) and web search of skills.sh, claudskills.com, claudeskills.info and vibeindex.ai.
 - **Metadata:** stars, license and last push were collected through the GitHub GraphQL API on 2026-10-16.
 - **Downloads:** each source was shallow- or sparse-cloned into its own scratch folder. Nothing was installed or executed.
-- **Review:** I read every SKILL.md that was collected. I grepped every script for network, process, deletion, eval and credential access, and grepped all docs for injection-style instructions.
+- **Review:** every collected SKILL.md was read in full. Every script was grepped for network, process, deletion, eval and credential access, and all docs for injection-style instructions.
 
 **Selection criteria:**
 1. The license permits redistribution.
@@ -15,41 +15,41 @@ Evaluated 2026-10-16. Scope: third-party and community Agent Skills (folders wit
 4. It is not a thin wrapper.
 5. It is safe.
 
-Collected skills live in `skills/community/<owner>__<skill>/`, each with a `SOURCE.md`.
+Collected skills live in `skills/community/<skill-name>/`, each with a `SOURCE.md`. The folder name equals the skill's `name:`.
 
 ---
 
 ## Picked (23)
 
-| Folder | Purpose | License | Stars / last commit |
-|---|---|---|---|
-| `Wu030616__unity-xr-mr-ui-director` | Quest 3 spatial UI: brief in metres, one input stack, world-space Canvas, MRUK placement, device QA, plus a read-only project auditor | Apache-2.0 | 0 / 2026-07-14 |
-| `Wu030616__quest3-verify-first` | Verify Quest, Unity and OpenXR claims against primary sources and the real project before mutating it (dependency of the UI director) | Apache-2.0 | 0 / 2026-07-14 |
-| `dilmerv__submit-game-version` | Template: bump version, build signed Quest APK in the open editor, upload to Horizon Store BETA with `ovr-platform-util` | MIT | 2 / 2026-08-30 |
-| `Nice-Wolf-Studio__unity-xr` | Unity 6.3 XR stack: XRI 3.3, OpenXR, locomotion, haptics, simulator, anti-patterns | MIT | 40 / 2026-09-15 |
-| `Nice-Wolf-Studio__unity-multiplayer` | Netcode for GameObjects 2.x (`[Rpc(SendTo)]`), Distributed Authority, Relay and Lobby | MIT | 40 / 2026-09-15 |
-| `the-vibey-project__xr-perceptual-constraints-displays-and-tracking` | VR reference part 1: latency, cybersickness, VAC, presence, displays, tracking | MIT | 3 / 2026-10-11 |
-| `the-vibey-project__xr-rendering-input-and-spatial-understanding` | VR reference part 2: single-pass stereo, reprojection, foveation, input, locomotion comfort table, anchors | MIT | 3 / 2026-10-11 |
-| `the-vibey-project__xr-platforms-audio-and-comfort` | VR reference part 3: OpenXR, spatial audio, comfort, safety, accessibility | MIT | 3 / 2026-10-11 |
-| `the-vibey-project__xr-ux-design-and-performance-budgeting` | VR reference part 4: 3D UX, frame-budget method | MIT | 3 / 2026-10-11 |
-| `the-vibey-project__xr-reference` | VR reference part 5: anti-patterns, numbers, platform landscape | MIT | 3 / 2026-10-11 |
-| `scenario-labs__scenario-unity-expert` | Lead Unity 6.3 on macOS agent protocol: batch, headless bridge, **official Unity CLI and com.unity.pipeline**, quality gates, 6.3 traps, shared toolkit | MIT | 1032 / 2026-10-15 |
-| `scenario-labs__scenario-unity-mobile` | Android, Vulkan and TBDR budgets, ASTC rules, mobile URP, IL2CPP, signing from env (Quest-relevant parts) | MIT | 1032 / 2026-10-15 |
-| `scenario-labs__scenario-unity-performance` | Measurement-first profiling, GC, SRP Batcher and GRD, PSO warm-up, spike attribution | MIT | 1032 / 2026-10-15 |
-| `scenario-labs__scenario-unity-shaders` | URP 17.3 HLSL and Shader Graph, all passes, variants, PSO; templates are stereo-instancing correct | MIT | 1032 / 2026-10-15 |
-| `scenario-labs__scenario-unity-pipeline-automation` | Import rules, prefabs, Addressables, content tests, CLI and CI builds, release provenance | MIT | 1032 / 2026-10-15 |
-| `scenario-labs__scenario-blender-expert` | Blender 5.2 agent protocol plus audit and review toolkit (lead) | MIT | 1032 / 2026-10-15 |
-| `scenario-labs__scenario-blender-retopology` | Dense or AI mesh to game low poly with budgets and topology audits | MIT | 1032 / 2026-10-15 |
-| `scenario-labs__scenario-blender-uv-baking` | Game UVs, texel density, measured high-to-low bakes | MIT | 1032 / 2026-10-15 |
-| `nowsprinting__test-designing-guide` | Unity test design method: layers, equivalence partitions, game error-guessing | Unlicense | 20 / 2026-10-09 |
-| `AlterLab-IEU__game-playtest` | Behavioural playtest protocol, observation sheets, synthesis | MIT | 45 / 2026-03-30 |
-| `AlterLab-IEU__game-gdd-author` | Socratic 10-section GDD with pillars, scope tiers and MDA tags (templates bundled) | MIT | 45 / 2026-03-30 |
-| `GarrettPetersen__review-game-trailer` | Plan and audit trailers from authentic gameplay, with a timecoded review | MIT | 7 / 2026-10-06 |
-| `gamedev-skills__prototype-fast` | One-question, timeboxed greybox prototype with keep or kill criteria | Apache-2.0 | 1550 / 2026-10-09 |
+| Folder | Upstream owner | Purpose | License | Stars / last commit |
+|---|---|---|---|---|
+| `unity-xr-mr-ui-director` | Wu030616 | Quest 3 spatial UI: brief in metres, one input stack, world-space Canvas, MRUK placement, device QA, plus a read-only project auditor | Apache-2.0 | 0 / 2026-07-14 |
+| `quest3-verify-first` | Wu030616 | Verify Quest, Unity and OpenXR claims against primary sources and the real project before mutating it (dependency of the UI director) | Apache-2.0 | 0 / 2026-07-14 |
+| `submit-game-version` | dilmerv | Template: bump version, build signed Quest APK in the open editor, upload to Horizon Store BETA with `ovr-platform-util` | MIT | 2 / 2026-08-30 |
+| `unity-xr` | Nice-Wolf-Studio | Unity 6.3 XR stack: XRI 3.3, OpenXR, locomotion, haptics, simulator, anti-patterns | MIT | 40 / 2026-09-15 |
+| `unity-multiplayer` | Nice-Wolf-Studio | Netcode for GameObjects 2.x (`[Rpc(SendTo)]`), Distributed Authority, Relay and Lobby | MIT | 40 / 2026-09-15 |
+| `xr-perceptual-constraints-displays-and-tracking` | the-vibey-project | VR reference part 1: latency, cybersickness, VAC, presence, displays, tracking | MIT | 3 / 2026-10-11 |
+| `xr-rendering-input-and-spatial-understanding` | the-vibey-project | VR reference part 2: single-pass stereo, reprojection, foveation, input, locomotion comfort table, anchors | MIT | 3 / 2026-10-11 |
+| `xr-platforms-audio-and-comfort` | the-vibey-project | VR reference part 3: OpenXR, spatial audio, comfort, safety, accessibility | MIT | 3 / 2026-10-11 |
+| `xr-ux-design-and-performance-budgeting` | the-vibey-project | VR reference part 4: 3D UX, frame-budget method | MIT | 3 / 2026-10-11 |
+| `xr-reference` | the-vibey-project | VR reference part 5: anti-patterns, numbers, platform landscape | MIT | 3 / 2026-10-11 |
+| `scenario-unity-expert` | scenario-labs | Lead Unity 6.3 on macOS agent protocol: batch, headless bridge, **official Unity CLI and com.unity.pipeline**, quality gates, 6.3 traps, shared toolkit | MIT | 1032 / 2026-10-15 |
+| `scenario-unity-mobile` | scenario-labs | Android, Vulkan and TBDR budgets, ASTC rules, mobile URP, IL2CPP, signing from env (Quest-relevant parts) | MIT | 1032 / 2026-10-15 |
+| `scenario-unity-performance` | scenario-labs | Measurement-first profiling, GC, SRP Batcher and GRD, PSO warm-up, spike attribution | MIT | 1032 / 2026-10-15 |
+| `scenario-unity-shaders` | scenario-labs | URP 17.3 HLSL and Shader Graph, all passes, variants, PSO; templates are stereo-instancing correct | MIT | 1032 / 2026-10-15 |
+| `scenario-unity-pipeline-automation` | scenario-labs | Import rules, prefabs, Addressables, content tests, CLI and CI builds, release provenance | MIT | 1032 / 2026-10-15 |
+| `scenario-blender-expert` | scenario-labs | Blender 5.2 agent protocol plus audit and review toolkit (lead) | MIT | 1032 / 2026-10-15 |
+| `scenario-blender-retopology` | scenario-labs | Dense or AI mesh to game low poly with budgets and topology audits | MIT | 1032 / 2026-10-15 |
+| `scenario-blender-uv-baking` | scenario-labs | Game UVs, texel density, measured high-to-low bakes | MIT | 1032 / 2026-10-15 |
+| `test-designing-guide` | nowsprinting | Unity test design method: layers, equivalence partitions, game error-guessing | Unlicense | 20 / 2026-10-09 |
+| `game-playtest` | AlterLab-IEU | Behavioural playtest protocol, observation sheets, synthesis | MIT | 45 / 2026-03-30 |
+| `game-gdd-author` | AlterLab-IEU | Socratic 10-section GDD with pillars, scope tiers and MDA tags (templates bundled) | MIT | 45 / 2026-03-30 |
+| `review-game-trailer` | GarrettPetersen | Plan and audit trailers from authentic gameplay, with a timecoded review | MIT | 7 / 2026-10-06 |
+| `prototype-fast` | gamedev-skills | One-question, timeboxed greybox prototype with keep or kill criteria | Apache-2.0 | 1550 / 2026-10-09 |
 
 **Install notes**
-- The `scenario-labs__*` specialists find their lead skill as a sibling folder named exactly `scenario-unity-expert` or `scenario-blender-expert`. Drop the `<owner>__` prefix when you install them.
-- `dilmerv__submit-game-version` is project-specific. Adapt the names and paths before use. Its upstream `CI/release.local.env` contains what look like live credentials and was **not** copied.
+- The `scenario-*` specialists find their lead skill as a sibling folder named exactly `scenario-unity-expert` or `scenario-blender-expert`. Install them into the same parent folder.
+- `submit-game-version` is project-specific. Adapt the names and paths before use. Its upstream project's local env file was not copied.
 
 ---
 
@@ -130,5 +130,5 @@ Read these for ideas. Do not copy them.
 - **Meta Horizon Store listing assets** (cover art, hero art, screenshots, trailer specs, store copy). Use Meta's docs or a custom skill.
 - **Quest on-device profiling** (OVR Metrics Tool, Perfetto, RenderDoc for Quest) for Unity. Covered by Meta's official skills. The community versions are unlicensed.
 - **Photon Fusion and Normcore** multiplayer. Only project-specific or unlicensed skills exist.
-- **VR-specific playtesting** (simulator-sickness questionnaire, comfort ratings). Combine `AlterLab-IEU__game-playtest` with the `the-vibey-project__xr-*` comfort sections.
+- **VR-specific playtesting** (simulator-sickness questionnaire, comfort ratings). Combine `game-playtest` with the comfort sections of the five `xr-*` skills.
 - **VR trailer capture** (spectator camera, mixed-reality capture).

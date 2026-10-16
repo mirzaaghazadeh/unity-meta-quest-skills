@@ -1,6 +1,11 @@
 ---
 name: quest-unity-project-settings
 license: MIT
+metadata:
+  author: Navid Mirzaaghazadeh
+  author-url: https://github.com/mirzaaghazadeh
+  repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
+  version: "1.0.0"
 description: >-
   Recommended Unity settings for Meta Quest performance and Horizon Store
   compatibility, each checked against Meta's docs: Unity version floor for Meta
@@ -17,6 +22,8 @@ description: >-
 ---
 
 # Unity project settings for Meta Quest (verified against Meta docs)
+
+> Made by [Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh) · part of [unity-meta-quest-skills](https://github.com/mirzaaghazadeh/unity-meta-quest-skills) · MIT
 
 Use this skill together with Meta's `hz-unity-meta-core-sdk`, which covers SDK install, the rig
 and the Project Setup Tool API, and Meta's `hz-unity-code-review`, which reviews code and content.

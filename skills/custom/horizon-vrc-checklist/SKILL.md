@@ -1,6 +1,11 @@
 ---
 name: horizon-vrc-checklist
 license: MIT
+metadata:
+  author: Navid Mirzaaghazadeh
+  author-url: https://github.com/mirzaaghazadeh
+  repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
+  version: "1.0.0"
 description: >-
   Pre-submission audit of a Unity Meta Quest game against Meta's current
   Virtual Reality Checks (VRCs) for the Horizon Store, by VRC ID
@@ -16,6 +21,8 @@ description: >-
 ---
 
 # Horizon Store VRC audit for Unity projects
+
+> Made by [Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh) · part of [unity-meta-quest-skills](https://github.com/mirzaaghazadeh/unity-meta-quest-skills) · MIT
 
 Meta's VRC guide (last updated 2026-08-19) lists 84 VRC IDs, of which 80 are active.
 The four retired ones are Performance.2, Functional.8, Functional.11 and Input.6.

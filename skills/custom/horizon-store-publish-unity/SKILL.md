@@ -1,6 +1,11 @@
 ---
 name: horizon-store-publish-unity
 license: MIT
+metadata:
+  author: Navid Mirzaaghazadeh
+  author-url: https://github.com/mirzaaghazadeh
+  repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
+  version: "1.0.0"
 description: >-
   Ship a Unity Meta Quest game build to the Meta Horizon Store: one-time
   Developer Dashboard setup (org verification, app record, App ID and
@@ -17,6 +22,8 @@ description: >-
 ---
 
 # Unity build to Meta Horizon Store release channel
+
+> Made by [Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh) · part of [unity-meta-quest-skills](https://github.com/mirzaaghazadeh/unity-meta-quest-skills) · MIT
 
 This skill covers the path from a Unity project to a build sitting in a Horizon Store
 release channel. It stops at **Submit for Review**, which happens only in the Developer

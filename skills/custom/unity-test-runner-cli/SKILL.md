@@ -1,10 +1,17 @@
 ---
 name: unity-test-runner-cli
 license: MIT
+metadata:
+  author: Navid Mirzaaghazadeh
+  author-url: https://github.com/mirzaaghazadeh
+  repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
+  version: "1.0.0"
 description: Sets up, runs and reads Unity Test Framework tests (EditMode and PlayMode) for a Unity or Meta Quest project from the command line. Covers test assembly (.asmdef) layout, `unity test` in batch and CI, `run_tests` against a live Editor, PlayMode runs on a Quest player, and summarizing NUnit3 or JUnit result XML with the bundled script. Use when asked to add or write unit tests, run tests headlessly or in CI, find out why tests fail, re-run failing tests, or summarize a test-results.xml.
 ---
 
 # Unity tests from the CLI
+
+> Made by [Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh) · part of [unity-meta-quest-skills](https://github.com/mirzaaghazadeh/unity-meta-quest-skills) · MIT
 
 The full flag reference for `unity test` (sharding, retries, `--affected`, coverage, JUnit) is in the
 official **`unity-cli`** skill → `references/build-run-test.md`. The live-Editor test commands

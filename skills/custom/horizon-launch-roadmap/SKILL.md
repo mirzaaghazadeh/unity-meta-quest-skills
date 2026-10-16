@@ -1,6 +1,11 @@
 ---
 name: horizon-launch-roadmap
 license: MIT
+metadata:
+  author: Navid Mirzaaghazadeh
+  author-url: https://github.com/mirzaaghazadeh
+  repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
+  version: "1.0.0"
 description: >-
   Plan and sequence a Unity Meta Quest game launch on the Meta Horizon Store:
   which skill to use at each phase, the irreversible decisions (package name,
@@ -14,6 +19,8 @@ description: >-
 ---
 
 # Horizon Store launch roadmap for a Unity Quest game
+
+> Made by [Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh) · part of [unity-meta-quest-skills](https://github.com/mirzaaghazadeh/unity-meta-quest-skills) · MIT
 
 This is a routing and planning skill. Each phase points to the skill that does the work. Since
 2024-07-31 every Quest app ships through the Meta Horizon Store; App Lab is merged

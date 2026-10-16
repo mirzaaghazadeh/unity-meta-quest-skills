@@ -1,10 +1,17 @@
 ---
 name: unity-quest-android-build
 license: MIT
+metadata:
+  author: Navid Mirzaaghazadeh
+  author-url: https://github.com/mirzaaghazadeh
+  repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
+  version: "1.0.0"
 description: Builds Meta Quest (Horizon OS) Android APKs from a Unity project with the unity CLI, as development or release builds. Offers three routes (a Meta Quest build profile with no code, a BuildPipeline script through --execute-method, or a build inside the open Editor), plus toolchain and module checks, the Quest packaging baseline (APK, ARM64, IL2CPP, API 32/34, ASTC), build-failure troubleshooting, and APK checks with aapt2 and apksigner. Use when asked to build or export a Quest APK, make a dev build to try on the headset, pick a headless or CI build route, or fix an Android, Gradle or IL2CPP build failure. For uploading to Horizon Store release channels, use horizon-store-publish-unity.
 ---
 
 # Unity → Meta Quest APK build
+
+> Made by [Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh) · part of [unity-meta-quest-skills](https://github.com/mirzaaghazadeh/unity-meta-quest-skills) · MIT
 
 Build an APK that installs on Quest and passes the Horizon Store's packaging checks, using the
 `unity` CLI. This skill owns the **Quest-specific** part. For CLI install, flags, `--format json`

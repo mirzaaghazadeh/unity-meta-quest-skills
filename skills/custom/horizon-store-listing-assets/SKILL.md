@@ -1,6 +1,11 @@
 ---
 name: horizon-store-listing-assets
 license: MIT
+metadata:
+  author: Navid Mirzaaghazadeh
+  author-url: https://github.com/mirzaaghazadeh
+  repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
+  version: "1.0.0"
 description: >-
   Prepare and validate a Meta Horizon Store product listing for a Quest game:
   exact art specs (Cover Landscape/Square/Portrait, Hero, Logo, Icon, Spatialized
@@ -17,6 +22,8 @@ description: >-
 ---
 
 # Horizon Store listing: assets, metadata, rating, pricing
+
+> Made by [Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh) · part of [unity-meta-quest-skills](https://github.com/mirzaaghazadeh/unity-meta-quest-skills) · MIT
 
 Correction to Meta's `hz-store-submit` skill: its asset table and metadata limits are wrong.
 It lists a 1024 px icon, a 2560 × 1440 hero, a 3-screenshot minimum, and a 30/150/4000-character

@@ -1,10 +1,17 @@
 ---
 name: unity-quest-dev-setup
 license: MIT
+metadata:
+  author: Navid Mirzaaghazadeh
+  author-url: https://github.com/mirzaaghazadeh
+  repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
+  version: "1.0.0"
 description: Prepares a machine and a Unity project for Meta Quest development with the unity CLI. Checks or installs the CLI (with consent), installs a Unity 6 Editor with Android Build Support, SDK/NDK and OpenJDK, signs in and activates a license, adds the com.unity.pipeline package so an agent can drive the Editor, opens the project and waits until it's ready, and switches it to Android/Meta Quest. Use when setting up Unity for Quest on a new machine, when `unity` isn't found, when Android modules are missing, when `unity status` shows no Editor, or before Meta hz-unity-* skills that need a live Editor.
 ---
 
 # Unity + Quest development setup (CLI)
+
+> Made by [Navid Mirzaaghazadeh](https://github.com/mirzaaghazadeh) · part of [unity-meta-quest-skills](https://github.com/mirzaaghazadeh/unity-meta-quest-skills) · MIT
 
 Gets a machine and a project to the state Meta's `hz-unity-*` skills and the official `unity-cli`
 / `unity-pipeline` skills expect: **a Unity 6 Editor with Android support, the project open, and
