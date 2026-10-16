@@ -3,10 +3,13 @@
 # (developers.meta.com/horizon/resources/asset-guidelines/, updated 2026-05-11; verified 2026-10-16).
 # Usage: check-store-assets.sh <assets-dir>
 # Expected names: cover_landscape.png cover_square.png cover_portrait.png hero.png logo.png icon.png
-#                 tile_background.png tile_foreground.png screenshot_*.png trailer.mp4 trailer_cover.png
+#                 mini_landscape.png tile_background.png tile_foreground.png screenshot_*.png
+#                 trailer.mp4 trailer_cover.png
 # Tools: sips (macOS) or ImageMagick `identify`; ffprobe for the trailer (optional).
 # It checks pixel sizes, alpha, counts, and trailer basics only. Content rules (branding, no extra
 # text, safe areas, exact title) still need a human or agent visual review.
+# Alpha on 24-bit assets is a WARN, not a FAIL: the page says the alpha layer of a 32-bit upload
+# "is ignored unless it's for the Logo". Mini Landscape 1080x360 is in the page's spec table.
 set -u
 DIR="${1:-}"
 [ -d "$DIR" ] || { echo "usage: $0 <assets-dir>" >&2; exit 2; }
@@ -51,7 +54,7 @@ EOF
     fail "$label is ${w}x${h}, expected ${ew}x${eh}"
   fi
   case "$rule" in
-    none)     [ "$a" = "yes" ] && fail "$label has an alpha channel; Meta wants a solid 24-bit PNG" ;;
+    none)     [ "$a" = "yes" ] && warn "$label has an alpha channel; Meta asks for a 24-bit PNG and ignores the alpha layer, so transparent areas won't show as intended" ;;
     required) [ "$a" = "yes" ] && pass "$label has transparency" || fail "$label needs a transparent background (32-bit PNG)" ;;
     *) ;;
   esac
@@ -63,6 +66,7 @@ check_png cover_square.png    1440 1440 none     "Cover Square"
 check_png cover_portrait.png  1008 1440 none     "Cover Portrait"
 check_png hero.png            3000 900  none     "Hero Cover"
 check_png icon.png            512  512  none     "Icon"
+if [ -f "$DIR/mini_landscape.png" ]; then check_png mini_landscape.png 1080 360 none "Mini Landscape"; else warn "Mini Landscape 1080x360 not provided (listed in the spec table; check whether your Dashboard form asks for it)"; fi
 if [ -f "$DIR/logo.png" ]; then check_png logo.png max max required "Logo"; else warn "Logo (optional) not provided"; fi
 if [ -f "$DIR/tile_background.png" ] || [ -f "$DIR/tile_foreground.png" ]; then
   check_png tile_background.png 180 180 any      "Spatialized tile background"

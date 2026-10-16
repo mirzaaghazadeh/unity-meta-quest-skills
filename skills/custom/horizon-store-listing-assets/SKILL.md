@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.0.1"
 description: >-
   Prepare and validate a Meta Horizon Store product listing for a Quest game:
   exact art specs (Cover Landscape/Square/Portrait, Hero, Logo, Icon, Spatialized
@@ -40,6 +40,7 @@ skill is older than its "Last verified" date. Policy details are in
 | Cover Square | 1440 × 1440 | 1:1 | 24-bit PNG | Same design family |
 | Cover Portrait | 1008 × 1440 | 7:10 | 24-bit PNG | Same design family |
 | Hero Cover | 3000 × 900 | 10:3 | 24-bit PNG | Same design as the covers; branding centered (Asset.4) |
+| Mini Landscape | 1080 × 360 | 3:1 | 24-bit PNG | In the spec table; the page doesn't say where it's shown. Check whether the Dashboard asks for it |
 | Logo | variable, max 9000 × 1440 | - | 32-bit PNG | **Transparent background** (Asset.1); legible when scaled |
 | Icon | 512 × 512 | 1:1 | 24-bit PNG | Solid fill, **no transparency**, square corners |
 | Spatialized tile | 180 × 180 background + 180 × 180 foreground | 1:1 | PNG | Foreground layer transparent; content inside the safe area with 18 dp padding |
@@ -51,6 +52,9 @@ skill is older than its "Last verified" date. Policy details are in
 | Immersive Image Layers (Left, Right, Logo) | unverified, not on the guidelines page | - | - | Transparent backgrounds (Asset.9). Check the Dashboard upload form |
 
 Global rules:
+- **PNG depth:** every asset accepts 24- or 32-bit PNG, but "the 8-bit alpha layer is ignored
+  unless it's for the Logo". Use 24-bit everywhere except the Logo, so transparent areas don't
+  render unexpectedly.
 - Branded assets (covers, hero, logo) must carry the **exact app title**. Only the icon is exempt.
 - Keep titles and key focal points in the **safe area**. The bleed area may be cropped. Templates:
   https://metaque.st/storetemplates. Meta's page gives no pixel safe-area values, so use the PSDs.
