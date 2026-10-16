@@ -1,0 +1,4 @@
+interface:
+  display_name: "Quest 3 Verify First"
+  short_description: "Verify Quest 3 claims before changing a project"
+  default_prompt: "Use $quest3-verify-first to verify current Quest 3 and Unity requirements against primary sources and this project before making changes."

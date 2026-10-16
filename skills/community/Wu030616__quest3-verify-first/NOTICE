@@ -1,0 +1,22 @@
+Quest 3 Unity Codex Skills
+
+This project includes safety-focused adaptations informed by the following
+work:
+
+  Meta Quest Agentic Tools v1.2.2
+  https://github.com/meta-quest/agentic-tools
+  Commit: 8cb3ef460d2f60bb85dddba22797f5dd1d4adcbe
+  Relevant upstream skills:
+    - hz-quest-verify-first
+    - hz-unity-meta-quest-ui
+  Copyright 2025 Meta Platforms, Inc.
+  Licensed under the Apache License, Version 2.0.
+
+The files in this repository contain substantial local modifications. They
+remove implicit package installation, telemetry, broad device mutation, and
+assumed Unity bridge commands; add live primary-source verification, spatial
+UI workflow guidance, and a read-only Unity project auditor; and document the
+changes in each skill's SOURCE.md.
+
+The metavr npm package is not included. It is distributed separately under a
+different license.

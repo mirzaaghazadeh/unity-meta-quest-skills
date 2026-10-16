@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity XR/MR UI Director"
+  short_description: "Design and verify Quest 3 mixed-reality UI"
+  default_prompt: "Use $unity-xr-mr-ui-director to design, implement, and validate this Quest 3 MR interface in Unity."

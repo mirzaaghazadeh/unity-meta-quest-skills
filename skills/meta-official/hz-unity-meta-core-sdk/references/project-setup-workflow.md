@@ -1,0 +1,186 @@
+# Project Setup Workflow Reference
+
+Complete workflow for setting up a new Unity project with Meta XR Core SDK for VR/MR development.
+
+## Prerequisites
+
+### Hardware
+- Windows 10+ (64-bit) or macOS 10.10+ (x86 or ARM)
+- Meta VR device (Quest 2, Quest Pro, Quest 3, Quest 3S, Meta VR Glasses)
+
+### Software
+- Unity Editor 2022.3.15f1 or later (6.1 or later recommended)
+- Android Build Support module with OpenJDK and Android SDK & NDK Tools
+
+### Accounts
+- Unity ID
+- Meta Horizon developer account
+
+## Step-by-Step Setup
+
+### 1. Install Android Build Support
+
+In Unity Hub:
+1. Click **Installs** > select Unity version > **Manage** > **Add modules**
+2. Select: Android Build Support, OpenJDK, Android SDK & NDK Tools
+3. Click **Install**
+
+### 2. Create Project
+
+1. Unity Hub > Projects > New Project
+2. Select Unity 6.1 or later
+3. Select **Universal 3D** template (URP)
+4. Name project and click **Create project**
+
+### 3. Set Build Platform
+
+1. File > Build Profiles
+2. Under Platforms, select **Meta Quest** > **Enable Platform**
+3. For Unity < 6.1: select **Android** platform instead
+
+### 4. Install XR Provider Plugin
+
+**Recommended: Unity OpenXR Plugin (v1.15.1+)**
+
+1. Edit > Project Settings > XR Plug-in Management
+2. Install XR Plugin Management if needed
+3. In Windows/Mac/Linux tab: select **OpenXR**
+4. In Android/Meta Quest tab: select **OpenXR**
+
+### 5. Import Meta XR Core SDK
+
+1. Go to Unity Asset Store: Meta XR Core SDK
+2. Click **Add to My Assets**
+3. Click **Open in Unity** > **Install**
+4. Enable Meta XR Feature Set if prompted
+5. Restart editor if prompted
+
+### 6. Enable OpenXR Features
+
+1. Project Settings > XR Plug-in Management > OpenXR > Android tab
+2. Enable in Meta XR Feature Groups:
+   - **Meta XR Feature**
+   - **Meta XR Foveation**
+   - **Meta XR Subsampled Layout**
+
+### 7. Run Project Setup Tool
+
+Run FixAll for **both** Android and Standalone platforms. See [project-setup-tool.md](project-setup-tool.md) for full details on listing issues, fixing them, and determining fix categories.
+
+**Via `unity-cli` (preferred):**
+1. Call `OVRProjectSetup.FixAllAsync(BuildTargetGroup.Android)`
+2. Call `OVRProjectSetup.FixAllAsync(BuildTargetGroup.Standalone)`
+3. Verify results in a separate follow-up `run_script` (fixes apply asynchronously)
+
+**Via UI (fallback):**
+1. Meta > Tools > Project Setup Tool
+2. Select **Android** target group, click **Fix All** then **Apply All**
+3. Select **Standalone** target group, click **Fix All** then **Apply All**
+
+### 8. Add OVRCameraRig to Scene
+
+1. Delete existing **Main Camera** from Hierarchy
+2. In Project tab, search for `OVRCameraRig` (filter: All or In Packages)
+3. Drag the prefab into the scene Hierarchy
+
+### 9. Configure OVRManager
+
+Select OVRCameraRig in Hierarchy and configure in Inspector:
+- **Tracking Origin Type**: Floor Level (MR) or Eye Level (VR)
+- **Hand Tracking Support**: As needed
+- **Passthrough Support**: As needed
+- **Target Devices**: Select all supported headsets
+
+### 10. Generate AndroidManifest
+
+Generate the AndroidManifest following the steps in [android-manifest.md](android-manifest.md).
+
+## Programmatic Setup via `unity-cli`
+
+With an Editor open, run the whole setup through `unity command run_script` — see "Running SDK code"
+in [SKILL.md](../SKILL.md).
+
+### Installing Packages
+
+The CLI wraps package installs, so no C# is needed:
+
+```bash
+unity command package_add --identifier com.unity.xr.management --confirm true --wait true --project-path <proj> --format json
+unity command package_add --identifier com.unity.xr.openxr    --confirm true --wait true --project-path <proj> --format json
+unity command package_add --identifier com.meta.xr.sdk.core    --confirm true --wait true --project-path <proj> --format json
+unity command package_list --scope installed --project-path <proj> --format json   # verify
+```
+
+From C# instead, use `UnityEditor.PackageManager.Client.Add()` — **do NOT edit
+`Packages/manifest.json` directly**:
+
+```csharp
+using UnityEditor.PackageManager;
+
+Client.Add("com.unity.xr.management");
+Client.Add("com.unity.xr.openxr");
+Client.Add("com.meta.xr.sdk.core");
+```
+
+These are async requests, and **a successful add forces a recompile and domain reload** — never
+install a package and use its API in the same script.
+
+**Do not block on the request in the same script.** `Client.Add` / `Client.List` only progress from
+`EditorApplication.update`, which cannot run while your entry point holds the main thread — a
+`while (!req.IsCompleted) Thread.Sleep(...)` loop hangs until `run_script` times out. Verify in a
+separate call instead:
+
+```bash
+unity command package_status --project-path <proj> --format json    # poll the pending add
+unity command package_list --scope installed --project-path <proj> --format json
+unity command recompile_status --project-path <proj> --format json  # wait out the domain reload
+```
+
+### Enabling OpenXR in XR Plug-in Management
+
+After installing the packages, OpenXR must be enabled as the active loader in XR Plug-in Management for Android. This is done via the OpenXR settings in the XR Plug-in Management UI, or programmatically by enabling Meta XR OpenXR features on the Android `OpenXRSettings`.
+
+Call `OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android)`, then iterate its features via `GetFeatures()` and enable all Meta/Quest features (`MetaXRFeature`, `MetaXRFoveationFeature`, `MetaXRSubsampledLayout`, controller profiles, etc.). If a member doesn't resolve because it is internal, reach it with `BindingFlags.NonPublic | BindingFlags.Static` — that works under `run_script`.
+
+**CRITICAL: Do NOT manually create `Assets/XR/` or `Assets/XR/Settings/` folders.** These are auto-generated by the XR Plugin Management package. Manually calling `AssetDatabase.CreateFolder("Assets", "XR")` will create duplicate folders (`XR 1`, `XR 2`, etc.).
+
+`OVRProjectSetup.FixAllAsync()` (next step) will handle enabling the OpenXR loader itself and creating the required settings assets.
+
+### Running Project Setup Tool Programmatically
+
+See [project-setup-tool.md](project-setup-tool.md) for the full programmatic API including architecture, task registry access, listing issues, fix category determination, and fixing via `FixAllAsync` or direct `FixAction` invocation.
+
+**Quick reference:**
+- Call `OVRProjectSetup.FixAllAsync(BuildTargetGroup.Android)` — it compiles directly under `run_script`, no reflection needed
+- Call `OVRProjectSetup.FixAllAsync(BuildTargetGroup.Standalone)` for Quest Link / Meta Horizon Link support
+- Verify results in a **separate follow-up** `run_script` (async processing)
+- Some tasks are Manual (Guided Setup) and won't be resolved by `FixAllAsync` — list remaining issues to identify them
+
+## Quality Settings
+
+1. Edit > Project Settings > Quality
+2. Set **Anti Aliasing** to 4x (manually for URP)
+3. Set **Global Mipmap Limit** to Full Resolution
+4. Set **Anisotropic Textures** to Per Texture
+5. Enable **Billboards Face Camera Position**
+6. Enable **Realtime Reflection Probes** if needed
+
+## Building and Deploying
+
+1. Connect Meta VR headset via USB-C
+2. Enable Developer Mode on headset
+3. File > Build Profiles > select device in **Run Device**
+4. Click **Build and Run**
+
+## Testing During Development
+
+- **Meta Horizon Link** (Windows only): Stream app to headset without building
+- **Meta XR Simulator** (Windows/macOS): Preview without headset
+- **Meta Quest Developer Hub**: Device management, logs, screenshots, recording
+
+## Doc Reference
+
+- https://developers.meta.com/horizon/documentation/unity/unity-project-setup
+- https://developers.meta.com/horizon/documentation/unity/unity-project-configuration
+- https://developers.meta.com/horizon/documentation/unity/unity-build
+- https://developers.meta.com/horizon/documentation/unity/unity-development-overview

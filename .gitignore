@@ -1,0 +1,6 @@
+.DS_Store
+*.keystore
+*.jks
+*.env
+!*.env.example
+release.local.env
