@@ -166,7 +166,7 @@ public static class QuestProjectSettingsAudit
     {
         try
         {
-            Type perTarget = FindType("UnityEditor.XR.Management.XRGeneralSettingsPerBuildTarget");
+            Type perTarget = FindType("UnityEditor.XR.Management.XRGeneralSettingsPerBuildTarget", "Unity.XR.Management.Editor");
             if (perTarget == null) return null;
             MethodInfo forTarget = perTarget.GetMethod("XRGeneralSettingsForBuildTarget", BindingFlags.Public | BindingFlags.Static);
             object general = forTarget?.Invoke(null, new object[] { BuildTargetGroup.Android });
@@ -185,7 +185,7 @@ public static class QuestProjectSettingsAudit
     {
         try
         {
-            Type settings = FindType("UnityEngine.XR.OpenXR.OpenXRSettings");
+            Type settings = FindType("UnityEngine.XR.OpenXR.OpenXRSettings", "Unity.XR.OpenXR");
             MethodInfo get = settings?.GetMethod("GetSettingsForBuildTargetGroup", BindingFlags.Public | BindingFlags.Static);
             object s = get?.Invoke(null, new object[] { BuildTargetGroup.Android });
             return s == null ? null : GetProp(s, "renderMode");
@@ -210,15 +210,9 @@ public static class QuestProjectSettingsAudit
         return p?.GetValue(o);
     }
 
-    static Type FindType(string fullName)
-    {
-        foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            Type t = a.GetType(fullName, false);
-            if (t != null) return t;
-        }
-        return null;
-    }
+    // Assembly-qualified lookup (the asmdef name), null when the package isn't installed. Scanning
+    // AppDomain.GetAssemblies() instead triggers Unity's UAC0005 analyzer warning in Unity 6.6.
+    static Type FindType(string fullName, string assembly) => Type.GetType($"{fullName}, {assembly}", false);
 
     static string Arg(string name)
     {

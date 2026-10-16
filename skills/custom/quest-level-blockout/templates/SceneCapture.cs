@@ -82,6 +82,7 @@ namespace QuestBlockout
                 Debug.Log($"[SceneCapture] {path}");
             }
             Cleanup(camera, target);
+            RestoreScene(config);
         }
 
         // One image per eye, as the headset would draw them: asymmetric per-eye frustums, eyes apart
@@ -124,7 +125,12 @@ namespace QuestBlockout
             Object.DestroyImmediate(stereo);
             Object.DestroyImmediate(head.gameObject);
             Cleanup(null, target);
+            RestoreScene(config);
         }
+
+        // Captures hide editor-only objects. In a live Editor (unity command menu …) that would leave
+        // the open scene modified, so reload it from disk and drop the changes.
+        static void RestoreScene(Config config) => EditorSceneManager.OpenScene(config.scene, OpenSceneMode.Single);
 
         static Config Load()
         {

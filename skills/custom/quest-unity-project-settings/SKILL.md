@@ -56,6 +56,34 @@ report, run
 `-executeMethod OVRProjectSetupCLI.GenerateProjectSetupReport [-reportFile <path>] [-buildTarget Android]`.
 It writes JSON with each task's group, level and `isDone` (unity-upst-overview).
 
+**Meta Quest options from code** (Unity OpenXR Plugin 1.18.0; checked 2026-10-17). The fields are
+internal but serialized, so set them as the Inspector does:
+
+```csharp
+var quest = new SerializedObject(OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android).GetFeature<MetaQuestFeature>());
+quest.FindProperty("m_symmetricProjection").boolValue = true;
+quest.FindProperty("m_optimizeBufferDiscards").boolValue = true;
+quest.FindProperty("lateLatchingMode").boolValue = true;
+quest.FindProperty("lateLatchingDebug").boolValue = false;
+quest.FindProperty("m_multiviewRenderRegionsOptimizationMode").intValue = (int)OpenXRSettings.MultiviewRenderRegionsOptimizationMode.AllPasses;
+var devices = quest.FindProperty("targetDevices");   // manifest names: quest, quest2, cambria (Pro), eureka (3), quest3s
+for (var i = 0; i < devices.arraySize; i++)
+{
+    var d = devices.GetArrayElementAtIndex(i);
+    d.FindPropertyRelative("enabled").boolValue = d.FindPropertyRelative("manifestName").stringValue is "eureka" or "quest3s";
+}
+quest.ApplyModifiedPropertiesWithoutUndo();
+```
+
+**Target devices trap (observed):**
+- With the OpenXR plugin, this `targetDevices` list on Unity's Meta Quest feature is what
+  validation checks, and it defaults to *every* Quest, including the original one.
+- Setting Meta's `OVRProjectConfig.targetDeviceTypes` alone left it unchanged.
+- With the original Quest still enabled, turning on Symmetric Projection fails OpenXR validation
+  ("Symmetric Projection is only available on Quest 2 or higher").
+- An APK built with the defaults listed `quest|quest2|cambria|eureka|quest3s` in
+  `com.oculus.supportedDevices`.
+
 Without a live Editor, `FixAllAsync` needs a batch launch **without** `-quit` that waits for the
 task, and OpenXR validation of newly enabled features needs a second launch. A working pattern
 is in `unity-quest-dev-setup/references/batch-mode-traps.md`. Run that way on Unity 6000.6.6f1 with

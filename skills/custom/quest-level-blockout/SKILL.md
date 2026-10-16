@@ -87,6 +87,30 @@ Hand-offs:
 6. **Iterate:** edit the JSON → regenerate → re-capture. Once the layout is approved, swap the visuals
    (art pass) without touching the collision or the data.
 
+## The real headset view on a Mac: Meta XR Simulator from the CLI
+
+Once the scene has a rig (Meta's `OVRCameraRig`; set `OVRManager` `_trackingOriginType` to
+FloorLevel), this ran on 2026-10-17 with Core SDK 207.0.1, OpenXR 1.18.0, simulator 207.1
+(`metavr tools install xrsim`), Unity 6000.6.6f1 on Apple Silicon:
+
+```bash
+unity command menu --project-path . -- --path "Window/Meta/Meta XR Simulator/Activate"   # sets XR_SELECTED_RUNTIME_JSON
+unity command editor_play --project-path .
+unity command screenshot --project-path . -- --view game --output "$PWD/Screenshots/sim.png" --width 1920 --height 1080
+unity command editor_stop --project-path .
+```
+
+- **The session should reach focused:** the console shows
+  `[OVRPlugin] [XR_SESSION] ... running 1 visible 1 focused 1` and `SystemHeadset
+  Meta_Link_Quest_3`. The `ErrorFunctionUnsupported … xrGetSpaceRoomMeshMETA` style warnings are
+  Mac-simulator gaps, not project errors.
+- **The Game view** then mirrors the eye camera of the live OpenXR session.
+- **In the simulator window:** hold the right mouse button to look, WASD to move, E/Q for up and
+  down (see `hz-xr-simulator-install-and-configure`).
+- **`EditorOnly` objects are stripped from builds but stay in Play mode.** Hide debug labels and
+  markers with a component that calls `gameObject.SetActive(false)` in `Awake`, so the simulator
+  view matches the game.
+
 ## Review traps found in a real project
 
 - **Unity's procedural skybox** looked green-yellow at dusk. A small gradient-sky shader with
@@ -111,11 +135,28 @@ Hand-offs:
 All three use the `QuestBlockout` namespace and go in `Assets/Editor/`. They were compiled and run
 on 2026-10-16 in a Unity 6000.6.6f1 URP project with Meta XR Core SDK 207.0.1 on macOS.
 
+**Prefer the live Editor.** With `com.unity.pipeline` installed and the project open
+(`unity open .`, `unity status --until-ready`), run the menus through the CLI. In the reference
+project, regenerating the scene took 1–2 s this way versus about 24 s for a batch launch, and the
+per-eye render under 1 s versus about 20 s:
+
 ```bash
-# headless, project closed
+unity command menu --project-path . -- --path "Tools/Build Test Scene"    # your generator's menu item
+unity command menu --project-path . -- --path "Tools/Capture/Quest 3 Eyes"
+unity command console --project-path . --format json -- --since <cursor>   # cursor from console_status first
+```
+
+- **After editing a C# file,** run `unity command recompile`, then poll `recompile_status` until it
+  reports `completed`. A `menu` call sent during the domain reload can fail with "Connection reset
+  by server": run `unity status --until-ready` and retry.
+- **Both capture methods reload the scene from disk when they finish,** so a live Editor isn't left
+  with hidden or moved objects.
+
+Headless, with the project closed:
+
+```bash
 unity run <project> -- -executeMethod QuestBlockout.SceneCapture.Viewpoints -captureConfig Assets/Capture/capture.json
 unity run <project> -- -executeMethod QuestBlockout.SceneCapture.Eyes
-# or with the Editor open: Tools > Capture > Viewpoints / Quest 3 Eyes
 ```
 
 `unity run` reserves `-batchmode`/`-quit` itself. The templates were run with a raw
