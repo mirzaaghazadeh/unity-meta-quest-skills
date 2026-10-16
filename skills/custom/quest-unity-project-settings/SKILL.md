@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.1.0"
 description: >-
   Recommended Unity settings for Meta Quest performance and Horizon Store
   compatibility, each checked against Meta's docs: Unity version floor for Meta
@@ -55,6 +55,14 @@ via `unity-cli` (see `hz-unity-meta-core-sdk/references/project-setup-tool.md`).
 report, run
 `-executeMethod OVRProjectSetupCLI.GenerateProjectSetupReport [-reportFile <path>] [-buildTarget Android]`.
 It writes JSON with each task's group, level and `isDone` (unity-upst-overview).
+
+Without a live Editor, `FixAllAsync` needs a batch launch **without** `-quit` that waits for the
+task, and OpenXR validation of newly enabled features needs a second launch. A working pattern
+is in `unity-quest-dev-setup/references/batch-mode-traps.md`. Run that way on Unity 6000.6.6f1 with
+Core SDK 207.0.1 (2026-10-16), a URP-blank project with OpenXR + Meta XR feature group reached:
+all 36 Required and 10 Optional tasks done, 31 of 34 Recommended (left: Data Use Checkup and App
+ID, which only matter with the Platform SDK, and the simulator before it was installed); OpenXR
+validation for Android 0 errors, 0 warnings.
 
 ## 2. Player settings (Android / Meta Quest build profile)
 

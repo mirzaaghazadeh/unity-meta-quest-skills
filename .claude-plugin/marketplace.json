@@ -7,14 +7,14 @@
     "url": "https://github.com/mirzaaghazadeh"
   },
   "metadata": {
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "quest-core",
       "displayName": "Quest Core",
-      "description": "Start here. The full path from an empty Unity project to a Horizon Store submission: workflow router, verify-first guardrail, Unity CLI and live Editor control, metavr, Quest setup and settings, Meta XR Core and Interaction SDKs, VR UI, comfort design, code review, tests, headset debugging, Perfetto, release builds, VRC audit, store listing, upload and launch planning.",
-      "version": "1.0.0",
+      "description": "Start here. The full path from an empty Unity project to a Horizon Store submission: workflow router, verify-first guardrail, Unity CLI and live Editor control, metavr, Quest setup and settings, Meta XR Core and Interaction SDKs, free CC0 art sourcing, data-driven level blockout with headless screenshots and Quest 3 eye views, VR UI, comfort design, code review, tests, headset debugging, Perfetto, release builds, VRC audit, store listing, upload and launch planning.",
+      "version": "1.1.0",
       "author": { "name": "Navid Mirzaaghazadeh", "url": "https://github.com/mirzaaghazadeh" },
       "homepage": "https://github.com/mirzaaghazadeh/unity-meta-quest-skills",
       "repository": "https://github.com/mirzaaghazadeh/unity-meta-quest-skills",
@@ -35,6 +35,8 @@
         "./skills/custom/quest-unity-project-settings",
         "./skills/meta-official/hz-unity-meta-core-sdk",
         "./skills/meta-official/hz-unity-meta-interaction-sdk",
+        "./skills/custom/quest-asset-sourcing",
+        "./skills/custom/quest-level-blockout",
         "./skills/meta-official/hz-unity-meta-quest-ui",
         "./skills/meta-official/hz-immersive-designer",
         "./skills/meta-official/hz-unity-code-review",

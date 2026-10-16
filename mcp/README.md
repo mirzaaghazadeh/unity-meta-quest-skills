@@ -22,9 +22,37 @@ Both CLIs can print or write their own entry. Use `--dry-run` first:
 
 ```bash
 unity mcp configure claude-code --project-path "$PWD" --dry-run   # prints the entry, writes nothing
-metavr mcp install claude-code                                     # writes it, so run only when you want it
+metavr mcp install claude-code                                     # prints the `claude mcp add` command; --execute runs it
 metavr mcp install project                                         # project-local config instead
 ```
+
+## Known issue: metavr tools don't load in Claude Code (2026-10-16)
+
+**Symptom.** `claude mcp get metavr` shows `Status: ! Connected · tools fetch failed` with
+`Invalid result for tools/list: … "path": ["ttlMs"] … "path": ["cacheScope"] …`.
+
+**Cause.** Seen with metavr 1.8.0.17.10 and Claude Code 2.1.301. Claude Code talks the MCP
+`2026-07-28` protocol (`server/discover`, no `initialize`). metavr lists `2026-07-28` as supported
+and includes `ttlMs`/`cacheScope` in its `server/discover` reply, but leaves them out of
+`tools/list` results, which that protocol version requires. With older protocol versions metavr's
+replies are valid, which is why other clients don't see it.
+
+**Workaround.** Route the server through
+[`metavr_mcp_relay.py`](../skills/custom/unity-quest-dev-setup/scripts/metavr_mcp_relay.py) (it ships
+with the `unity-quest-dev-setup` skill), a 60-line standard-library script that adds the two fields
+(no caching) and passes everything else through:
+
+```bash
+claude mcp remove metavr 2>/dev/null
+claude mcp add metavr -- python3 -I /ABS/PATH/skills/custom/unity-quest-dev-setup/scripts/metavr_mcp_relay.py \
+  ~/.metavr/bin/metavr mcp server --update
+claude mcp get metavr        # expect: ✔ Connected
+```
+
+Claude Code loads new MCP tools only when a session starts: restart it (`claude --continue` keeps
+the conversation). Check again after each metavr or Claude Code update, and drop the relay once the
+direct command connects. The `npx -y metavr mcp server` form from `mcp.json.example` can be wrapped
+the same way.
 
 ## Avoid duplicates
 

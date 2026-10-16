@@ -1,0 +1,18 @@
+{
+  "scene": "Assets/Scenes/MyLevel.unity",
+  "outputDir": "Screenshots",
+  "width": 1920,
+  "height": 1080,
+  "viewpoints": [
+    { "name": "01_start", "pos": [0, 25.7, -5], "lookAt": [0, 25, 20], "fov": 75 },
+    { "name": "02_first_gap", "pos": [-2, 23.7, 33], "lookAt": [-7.5, 24.5, 47], "fov": 75, "hideEditorOnly": true },
+    { "name": "00_overview", "pos": [-40, 95, -55], "lookAt": [34, 20, 32], "fov": 55, "noFog": true },
+    { "name": "00_map", "pos": [33, 200, 29], "lookAt": [33, 0, 29.01], "orthoSize": 40, "noFog": true }
+  ],
+  "eyes": {
+    "name": "player_view",
+    "pos": [0, 24, -4],
+    "yaw": 0,
+    "pitch": 5
+  }
+}

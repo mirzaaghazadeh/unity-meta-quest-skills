@@ -1,0 +1,124 @@
+{
+  "note": "All layout values for the rooftop route. Meters, Y up, street level y = 0. Rectangles are [min, max]. LevelValidator checks every range before LevelBuilder generates the scene.",
+
+  "rules": {
+    "heightStep": [1.0, 4.0],
+    "gap": [2.0, 5.0],
+    "minLandingOverlap": 2.0,
+    "wallLength": [10.0, 15.0],
+    "wallHeight": [4.0, 5.0],
+    "ledgeHeight": [1.2, 1.6],
+    "slideClearance": [0.9, 1.1],
+    "checkpointCount": 9,
+    "enemySlotCount": 40
+  },
+
+  "playerStart": { "pos": [0, 24, -4], "yaw": 0 },
+
+  "rooftops": [
+    { "id": "S",  "x": [-6, 6],  "z": [-6, 6],  "top": 24 },
+    { "id": "R1", "x": [-6, 6],  "z": [9, 25],  "top": 25 },
+    { "id": "R2", "x": [-7, 7],  "z": [29, 43], "top": 22 },
+    { "id": "R3", "x": [-7, 7],  "z": [48, 62], "top": 24 },
+    { "id": "R4", "x": [10, 24], "z": [50, 64], "top": 21 },
+    { "id": "R5", "x": [28, 40], "z": [48, 62], "top": 23 },
+    { "id": "R6", "x": [44, 58], "z": [46, 60], "top": 26 },
+    { "id": "R7", "x": [62, 74], "z": [44, 58], "top": 25 }
+  ],
+  "route": ["S", "R1", "R2", "R3", "R4", "R5", "R6", "R7"],
+
+  "walls": [
+    { "id": "W1", "note": "west of the R2->R3 gap",      "x": [-8, -7.5], "z": [37, 50],     "runBottom": 22, "runTop": 26.5 },
+    { "id": "W2", "note": "north of the R5->R6 gap",     "x": [35, 49],   "z": [62.5, 63],   "runBottom": 23, "runTop": 27.5 },
+    { "id": "W3", "note": "billboard wall on R1's east edge", "x": [5.5, 6], "z": [11, 23], "runBottom": 25, "runTop": 29 }
+  ],
+
+  "slides": [
+    { "id": "SL1", "shape": "pipe",    "on": "R1", "axis": "x", "at": 18, "span": [-6, 5.5], "clearance": 1.0, "thickness": 0.4 },
+    { "id": "SL2", "shape": "duct",    "on": "R4", "axis": "z", "at": 17, "span": [50, 64],  "clearance": 1.0, "thickness": 0.5 },
+    { "id": "SL3", "shape": "barrier", "on": "R6", "axis": "z", "at": 51, "span": [46, 60],  "clearance": 1.0, "thickness": 0.4 }
+  ],
+
+  "ledges": [
+    { "id": "LD1", "on": "R2", "x": [-4, 4],  "z": [39, 43], "top": 23.4 },
+    { "id": "LD2", "on": "R3", "x": [2, 7],   "z": [55, 62], "top": 25.5 },
+    { "id": "LD3", "on": "R5", "x": [34, 40], "z": [52, 60], "top": 24.3 },
+    { "id": "LD4", "on": "R7", "x": [68, 74], "z": [47, 55], "top": 26.6 }
+  ],
+
+  "checkpoints": [
+    { "id": "C1", "pos": [0, 25.5, 4],      "facing": [0, 0, 1] },
+    { "id": "C2", "pos": [0, 26.5, 22],     "facing": [0, 0, 1] },
+    { "id": "C3", "pos": [0, 25, 41],       "facing": [0, 0, 1] },
+    { "id": "C4", "pos": [-5.5, 25.5, 45.5], "facing": [0, 0, 1] },
+    { "id": "C5", "pos": [4.5, 27, 58],     "facing": [1, 0, 0] },
+    { "id": "C6", "pos": [20, 22.5, 57],    "facing": [1, 0, 0] },
+    { "id": "C7", "pos": [37, 25.8, 56],    "facing": [1, 0, 0] },
+    { "id": "C8", "pos": [42, 26, 61],      "facing": [1, 0, 0] },
+    { "id": "C9", "pos": [71, 28, 51],      "facing": [1, 0, 0] }
+  ],
+  "checkpointRadius": 1.5,
+
+  "enemies": [
+    { "slot": 1,  "type": "rusher", "anim": "idle", "pos": [-3, 25, 23],     "yaw": 180 },
+    { "slot": 2,  "type": "rusher", "anim": "idle", "pos": [2.5, 23.4, 42.5], "yaw": 180 },
+    { "slot": 3,  "type": "rusher", "anim": "idle", "pos": [-4, 24, 58],     "yaw": 180 },
+    { "slot": 4,  "type": "rusher", "anim": "idle", "pos": [22, 21, 60],     "yaw": 270 },
+    { "slot": 5,  "type": "rusher", "anim": "idle", "pos": [39, 24.3, 53],   "yaw": 270 },
+    { "slot": 6,  "type": "rusher", "anim": "idle", "pos": [56, 26, 52],     "yaw": 270 },
+    { "slot": 7,  "type": "rusher", "anim": "idle", "pos": [73, 26.6, 54],   "yaw": 270 },
+    { "slot": 8,  "type": "drone",  "pos": [-3, 26, 45.5],  "yaw": 180 },
+    { "slot": 9,  "type": "drone",  "pos": [26, 25, 56],    "yaw": 270 },
+    { "slot": 10, "type": "drone",  "pos": [42, 29.5, 52],  "yaw": 270 },
+    { "slot": 11, "type": "rusher", "anim": "run", "pos": [-4, 25, 11],  "patrolTo": [2, 25, 11] },
+    { "slot": 12, "type": "rusher", "anim": "run", "pos": [-5, 24, 50],  "patrolTo": [0, 24, 50] },
+    { "slot": 13, "type": "rusher", "anim": "run", "pos": [12, 21, 52],  "patrolTo": [12, 21, 62] },
+    { "slot": 14, "type": "rusher", "anim": "run", "pos": [46, 26, 48],  "patrolTo": [46, 26, 58] },
+    { "slot": 15, "type": "drone",  "pos": [68, 28.5, 57],  "yaw": 270 },
+    { "slot": 16, "type": "rusher", "anim": "run", "pos": [5, 22, 31],   "patrolTo": [5, 22, 37] },
+    { "slot": 17, "type": "rusher", "anim": "run", "pos": [30, 23, 50],  "patrolTo": [36, 23, 50] },
+    { "slot": 18, "type": "rusher", "anim": "run", "pos": [64, 25, 46],  "patrolTo": [64, 25, 56] },
+    { "slot": 19, "type": "drone",  "pos": [2, 28, 14],     "yaw": 180 },
+    { "slot": 20, "type": "drone",  "pos": [0, 27.5, 60],   "yaw": 180 },
+    { "slot": 21, "type": "rusher", "anim": "idle", "pos": [3, 25, 24],      "yaw": 180 },
+    { "slot": 22, "type": "rusher", "anim": "idle", "pos": [-5, 22, 33],     "yaw": 180 },
+    { "slot": 23, "type": "rusher", "anim": "idle", "pos": [20, 21, 52],     "yaw": 270 },
+    { "slot": 24, "type": "rusher", "anim": "idle", "pos": [54, 26, 58],     "yaw": 270 },
+    { "slot": 25, "type": "drone",  "pos": [50, 29.5, 48],  "yaw": 270 },
+    { "slot": 26, "type": "rusher", "anim": "idle", "pos": [6, 25.5, 61],    "yaw": 270 },
+    { "slot": 27, "type": "rusher", "anim": "idle", "pos": [30, 23, 60],     "yaw": 270 },
+    { "slot": 28, "type": "rusher", "anim": "idle", "pos": [66, 25, 48],     "yaw": 270 },
+    { "slot": 29, "type": "rusher", "anim": "run", "pos": [-5, 25, 19.5], "patrolTo": [-5, 25, 24] },
+    { "slot": 30, "type": "rusher", "anim": "run", "pos": [-6, 22, 38],   "patrolTo": [-1, 22, 38] },
+    { "slot": 31, "type": "rusher", "anim": "run", "pos": [23, 21, 51],   "patrolTo": [23, 21, 58] },
+    { "slot": 32, "type": "rusher", "anim": "run", "pos": [32, 23, 61],   "patrolTo": [38, 23, 61] },
+    { "slot": 33, "type": "rusher", "anim": "run", "pos": [57, 26, 47],   "patrolTo": [52, 26, 47] },
+    { "slot": 34, "type": "rusher", "anim": "run", "pos": [70, 25, 57],   "patrolTo": [73, 25, 57] },
+    { "slot": 35, "type": "drone",  "pos": [5, 25.5, 40],   "yaw": 180 },
+    { "slot": 36, "type": "drone",  "pos": [18, 24.5, 62],  "yaw": 270 },
+    { "slot": 37, "type": "drone",  "pos": [36, 27, 50],    "yaw": 270 },
+    { "slot": 38, "type": "drone",  "pos": [72, 30, 46],    "yaw": 270 },
+    { "slot": 39, "type": "drone",  "pos": [8.5, 28, 51],   "yaw": 270 },
+    { "slot": 40, "type": "drone",  "pos": [60, 29, 52],    "yaw": 270 }
+  ],
+
+  "backgroundCity": {
+    "seed": 7,
+    "count": 200,
+    "distanceFromRoute": [25, 250],
+    "footprint": [8, 25],
+    "heightNear": [12, 60],
+    "heightFar": [30, 110],
+    "minSpacing": 4
+  },
+
+  "viewpoints": [
+    { "name": "01_start_platform", "pos": [0, 25.7, -5],    "lookAt": [0, 25, 20],   "fov": 75 },
+    { "name": "02_wallrun_W1",     "pos": [-2, 23.7, 33],   "lookAt": [-7.5, 24.5, 47], "fov": 75 },
+    { "name": "03_slide_SL1",      "pos": [0, 26.7, 11],    "lookAt": [0, 26, 22],   "fov": 75 },
+    { "name": "04_across_gaps",    "pos": [6, 27.2, 57],    "lookAt": [60, 24, 54],  "fov": 75 },
+    { "name": "05_enemies",        "pos": [15, 30, 38],     "lookAt": [45, 24, 55],  "fov": 75 },
+    { "name": "00_overview",       "pos": [-40, 95, -55],   "lookAt": [34, 20, 32],  "fov": 55, "labels": "route", "noFog": true },
+    { "name": "00_map_topdown",    "pos": [33, 200, 29],    "lookAt": [33, 0, 29.01], "fov": 0, "orthoSize": 40, "labels": "route", "noFog": true }
+  ]
+}

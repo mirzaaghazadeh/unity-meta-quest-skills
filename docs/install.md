@@ -35,7 +35,7 @@ install any combination.
 
 | Bundle | Skills | Always-on context | Contents |
 |---|---|---|---|
-| `quest-core` | 23 | ~3.2k tokens | **Start here.** Workflow router, guardrail, Unity CLI, metavr, setup, Meta XR Core + Interaction SDKs, UI, comfort, tests, debugging, release build, VRCs, store listing, upload |
+| `quest-core` | 25 | ~3.5k tokens | **Start here.** Workflow router, guardrail, Unity CLI, metavr, setup, Meta XR Core + Interaction SDKs, CC0 art sourcing, level blockout + headless capture, UI, comfort, tests, debugging, release build, VRCs, store listing, upload |
 | `meta-quest-extras` | 15 | ~1.7k | MRUK, passthrough camera, face/body tracking, placement, FBX, TMP, SDK upgrades, simpleperf, XR Simulator, Meta's submission walkthrough |
 | `unity-extras` | 17 | ~1.0k | uGUI/UI Toolkit, audio, physics, NavMesh, URP, Shader Graph, Project Auditor, multiplayer, Vivox, localization |
 | `community-unity-xr` | 11 | ~1.2k | XR Interaction Toolkit, Netcode, Unity 6.3 agent protocol + mobile/perf/shader/CI specialists, test design, MR UI |
@@ -77,7 +77,7 @@ show up with the bundle as a prefix, such as `quest-core:unity-cli`.
 
 ## B. `npx skills`
 
-[skills.sh](https://skills.sh)'s CLI finds all 78 skills, grouped by bundle. It needs Node.js.
+[skills.sh](https://skills.sh)'s CLI finds all 80 skills, grouped by bundle. It needs Node.js.
 
 ```bash
 # see what's available

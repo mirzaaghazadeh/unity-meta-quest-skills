@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.1.0"
 description: >-
   Start-here map for making a Meta Quest VR game in Unity with Claude Code and
   shipping it on the Meta Horizon Store. Gives the end-to-end order (verify,
@@ -50,7 +50,7 @@ before acting on a step.
 |---|---|---|---|
 | 0 | Plan | `game-gdd-author`, `prototype-fast`, `hz-immersive-designer`, `horizon-launch-roadmap` | Core loop proven in the headset. Package name and comfort target decided |
 | 1 | Set up | `unity-quest-dev-setup` → `hz-new-project-creation` → `quest-unity-project-settings` → `hz-unity-meta-core-sdk` | Empty scene runs on the Quest; settings audit passes |
-| 2 | Build the game | `hz-unity-meta-interaction-sdk` (or `unity-xr` for XR Interaction Toolkit: **pick one**), `hz-unity-meta-quest-ui`, `hz-unity-meta-mixed-reality-utility-kit`, `physics-3d-collision`, `unity-package-management` | Features work in the Editor and the XR Simulator |
+| 2 | Build the game | `quest-level-blockout` (layout from data, validated, reviewed headless), `quest-asset-sourcing` (CC0 art, CREDITS.md), `hz-unity-meta-interaction-sdk` (or `unity-xr` for XR Interaction Toolkit: **pick one**), `hz-unity-meta-quest-ui`, `hz-unity-meta-mixed-reality-utility-kit`, `physics-3d-collision`, `unity-package-management` | Features work in the Editor and the XR Simulator |
 | 3 | Iterate without a headset | `hz-xr-simulator-install-and-configure`, `hz-xr-simulator-control` | Simulator session reproduces the feature |
 | 4 | Test | `unity-test-runner-cli` (+ `test-designing-guide`), `game-playtest` | EditMode/PlayMode tests green; playtest notes logged |
 | 5 | Debug and performance | `hz-vr-debug`, `hz-unity-code-review`, `hz-perfetto-debug`, `hz-simpleperf-debug`, `scenario-unity-performance`, `project-auditor-fixes` | Holds the frame rate on the lowest target device |
@@ -87,9 +87,13 @@ before acting on a step.
 | grab, poke, ray, teleport, locomotion | `hz-unity-meta-interaction-sdk` |
 | place things in the real room (mixed reality) | `hz-unity-meta-mixed-reality-utility-kit`, `hz-unity-placement` |
 | build VR menus and text | `hz-unity-meta-quest-ui`, `hz-unity-tmp-resources`, `unity-xr-mr-ui-director` |
+| block out a level, check jump distances, screenshots or the per-eye view without a headset | `quest-level-blockout` |
+| find free models, characters, textures; credits and licenses | `quest-asset-sourcing` |
+| run Editor scripts headless (batch mode, CI) | `unity-quest-dev-setup` → `references/batch-mode-traps.md` |
 | import a 3D model | `hz-unity-fbx-import`; Blender work: `scenario-blender-expert` |
 | write shaders that work in both eyes | `scenario-unity-shaders` |
 | add multiplayer or voice | `setup-multiplayer-services`, `unity-multiplayer`, `setup-vivox-voice-chat` |
+| metavr MCP tools don't load in Claude Code ("tools fetch failed") | `unity-quest-dev-setup` (Step 8: relay workaround) |
 | add achievements, leaderboards, IAP, entitlement | `hz-unity-platform-sdk` |
 | fix comfort or motion sickness | `hz-immersive-designer`, `xr-platforms-audio-and-comfort` |
 | find why the game stutters | `hz-perfetto-debug`, `hz-unity-code-review`, `scenario-unity-performance` |

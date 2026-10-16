@@ -24,6 +24,8 @@ Copy the prompts and adapt them. Each row says which skill does the work.
 | 1 | Machine | "Check that my Mac can build for Quest: Unity CLI, a Unity 6 Editor with Android modules, metavr. Ask before installing anything." | `unity-quest-dev-setup`, `metavr-cli` |
 | 1 | Project | "Create a new Unity 6 Quest project called LanternPuzzle with URP and the Meta XR SDK." | `hz-new-project-creation`, `unity-cli` |
 | 1 | Settings | "Audit this project's Quest settings and fix anything that would fail the store." | `quest-unity-project-settings`, `hz-unity-meta-core-sdk` |
+| 2 | Blockout | "Block out the level from a JSON file with gaps of 2–5 m, validate it, and render screenshots plus the Quest 3 eye view." | `quest-level-blockout` |
+| 2 | Art | "Find free CC0 models for the enemies and props, download what can be scripted, and keep CREDITS.md." | `quest-asset-sourcing` |
 | 2 | Gameplay | "Add hand-tracked grabbing and teleport locomotion with snap turn." | `hz-unity-meta-interaction-sdk` |
 | 2 | Mixed reality | "Spawn the lanterns on real tables in the room using scene data." | `hz-unity-meta-mixed-reality-utility-kit`, `hz-unity-placement` |
 | 2 | UI | "Make a world-space main menu that's readable at 1.5 m and works with hands and controllers." | `hz-unity-meta-quest-ui`, `hz-unity-tmp-resources` |

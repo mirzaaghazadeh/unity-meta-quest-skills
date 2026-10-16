@@ -3,7 +3,7 @@
 Guidance for AI coding agents (Claude Code, Codex, Cursor, Copilot and others) working with this
 repository. People should start at [README.md](README.md).
 
-This repo is a **skill library**: 78 Agent Skills for building Meta Quest VR games in Unity with
+This repo is a **skill library**: 80 Agent Skills for building Meta Quest VR games in Unity with
 the Unity CLI and shipping them on the Meta Horizon Store. It holds no app code.
 
 ## Layout
@@ -11,7 +11,7 @@ the Unity CLI and shipping them on the Meta Horizon Store. It holds no app code.
 ```
 skills/meta-official/<skill>/    26  Meta's skills, copied unchanged (Apache-2.0) + ERRATA.md
 skills/unity-official/<skill>/   20  Unity's skills, copied unchanged (Unity Companion License)
-skills/custom/<skill>/            9  Original skills by Navid Mirzaaghazadeh (MIT)
+skills/custom/<skill>/           11  Original skills by Navid Mirzaaghazadeh (MIT)
 skills/community/<skill>/        23  Third-party skills, copied unchanged (MIT/Apache/Unlicense)
 .claude-plugin/marketplace.json      Five plugin bundles; the single source of truth for bundles
 install.sh                           Installs bundles or skills by reading marketplace.json

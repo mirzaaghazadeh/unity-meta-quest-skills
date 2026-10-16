@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.1.0"
 description: Prepares a machine and a Unity project for Meta Quest development with the unity CLI. Checks or installs the CLI (with consent), installs a Unity 6 Editor with Android Build Support, SDK/NDK and OpenJDK, signs in and activates a license, adds the com.unity.pipeline package so an agent can drive the Editor, opens the project and waits until it's ready, and switches it to Android/Meta Quest. Use when setting up Unity for Quest on a new machine, when `unity` isn't found, when Android modules are missing, when `unity status` shows no Editor, or before Meta hz-unity-* skills that need a live Editor.
 ---
 
@@ -25,6 +25,10 @@ Hand-offs:
 - Headset connection and developer mode → **`hz-unity-device-readiness`**, **`metavr-cli`**.
 - First build → **`unity-quest-android-build`**. Store upload → **`horizon-store-publish-unity`**.
 - Quest Player, XR and URP settings → **`quest-unity-project-settings`**.
+- Running Editor scripts **without** a live Editor (`unity run … -executeMethod`, raw
+  `-batchmode`, CI) → read **[references/batch-mode-traps.md](references/batch-mode-traps.md)**
+  first: imports and Meta's Fix All don't finish in a `-quit` run, OpenXR validation needs a second
+  run, plus disk-space and capture traps found in a real project.
 
 ## Ground rules
 
@@ -84,6 +88,9 @@ unity editors verify <version>                                      # structural
 - Modules can only be added to Editors the Hub or CLI installed. A hand-installed Editor has to
   be reinstalled through them first.
 - macOS: `-a arm64` / `-a x86_64` selects Apple silicon or Intel builds.
+- **Disk:** the Android module alone was 5.4 GB installed (6000.6.6f1), and a low-disk install
+  can abort halfway. Keep at least 25 GB free; recovery steps are in
+  [references/batch-mode-traps.md](references/batch-mode-traps.md) §5 (observed 2026-10-16).
 
 ## Step 3: Sign-in and license
 
@@ -177,6 +184,21 @@ unity mcp configure --list                                              # suppor
 unity mcp configure claude-code --project-path <project> --dry-run      # shows the entry it would write
 ```
 
+**metavr MCP in Claude Code (known issue, 2026-10-16).** With metavr 1.8.0.17.10 and Claude Code
+2.1.301, `claude mcp get metavr` shows `Connected · tools fetch failed` (`ttlMs` / `cacheScope` in
+the error). metavr advertises MCP protocol `2026-07-28`, which Claude Code uses, but omits those two
+required fields from its list results. Route it through
+[scripts/metavr_mcp_relay.py](scripts/metavr_mcp_relay.py) (standard library; adds the fields with
+no caching, passes everything else through), with the user's OK since it edits Claude config:
+
+```bash
+claude mcp add metavr -- python3 -I <this skill>/scripts/metavr_mcp_relay.py ~/.metavr/bin/metavr mcp server --update
+claude mcp get metavr      # expect ✔ Connected; tools load in the next Claude Code session
+```
+
+Re-check without the relay after metavr or Claude Code updates. Note that `metavr mcp install
+claude-code` only prints the `claude mcp add` command unless you pass `--execute`.
+
 ## Final check
 
 ```bash
@@ -200,5 +222,6 @@ Report: CLI version, Editor version, Android modules ok, license ok, Pipeline in
 - Meta Quest build profile: https://docs.unity3d.com/6000.3/Documentation/Manual/xr-meta-quest-build-profile.html
 - Meta skills `hz-new-project-creation`, `hz-unity-meta-core-sdk` (meta-quest/agentic-tools @ 3a8553d)
 
-Last verified: 2026-10-16. Not run against a live CLI on this machine, because nothing was
-installed. Confirm flags with `unity <command> --help` on first use.
+Last verified: 2026-10-16. The `unity` CLI steps were not run against a live CLI. Confirm flags
+with `unity <command> --help` on first use. The batch-mode traps reference was observed in a real
+Unity 6000.6.6f1 + Meta XR Core SDK 207.0.1 project on macOS.

@@ -1,7 +1,7 @@
 # Unity × Meta Quest skill library
 
 [![License: MIT](https://img.shields.io/badge/license-MIT%20%2B%20third--party-blue.svg)](THIRD_PARTY_NOTICES.md)
-![Skills: 78](https://img.shields.io/badge/skills-78-brightgreen.svg)
+![Skills: 80](https://img.shields.io/badge/skills-80-brightgreen.svg)
 ![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin%20marketplace-orange.svg)
 
 Agent skills for building **Meta Quest VR games in Unity** with Claude Code and the **official Unity
@@ -13,7 +13,7 @@ Curated and written by **[Navid Mirzaaghazadeh](https://github.com/mirzaaghazade
 
 | Folder | Skills | From | License |
 |---|---|---|---|
-| [`skills/custom/`](skills/custom) | 9 | **Original, by Navid Mirzaaghazadeh**: workflow router, Quest setup and settings, builds, tests, VRC audit, store listing, upload, launch plan | MIT |
+| [`skills/custom/`](skills/custom) | 11 | **Original, by Navid Mirzaaghazadeh**: workflow router, Quest setup and settings, free art sourcing, level blockout and headless capture, builds, tests, VRC audit, store listing, upload, launch plan | MIT |
 | [`skills/meta-official/`](skills/meta-official) | 26 | Meta ([meta-quest/agentic-tools](https://github.com/meta-quest/agentic-tools)), unchanged, plus [ERRATA](skills/meta-official/ERRATA.md) | Apache-2.0 |
 | [`skills/unity-official/`](skills/unity-official) | 20 | Unity ([Unity-Technologies/skills](https://github.com/Unity-Technologies/skills)), unchanged | Unity Companion |
 | [`skills/community/`](skills/community) | 23 | Vetted third-party skills, unchanged, each with a `SOURCE.md` | MIT / Apache / Unlicense |
@@ -54,7 +54,7 @@ The five bundles don't overlap. Start with `quest-core` and add others when a ph
 
 | Bundle | Skills | Context per session | What's in it |
 |---|---|---|---|
-| **`quest-core`** | 23 | ~3.2k tokens | Router, verify-first guardrail, Unity CLI + live Editor, metavr, setup, settings, Meta XR Core + Interaction SDKs, VR UI, comfort, code review, tests, headset debugging, Perfetto, release build, VRCs, store listing, upload, launch plan |
+| **`quest-core`** | 25 | ~3.5k tokens | Router, verify-first guardrail, Unity CLI + live Editor, metavr, setup, settings, Meta XR Core + Interaction SDKs, CC0 art sourcing, level blockout + headless capture, VR UI, comfort, code review, tests, headset debugging, Perfetto, release build, VRCs, store listing, upload, launch plan |
 | `meta-quest-extras` | 15 | ~1.7k | MRUK, passthrough camera, face and body tracking, placement, FBX, TMP, SDK upgrades, simpleperf, XR Simulator, Meta's submission walkthrough |
 | `unity-extras` | 17 | ~1.0k | uGUI and UI Toolkit, audio, physics, NavMesh, URP, Shader Graph, Project Auditor, multiplayer, Vivox, localization |
 | `community-unity-xr` | 11 | ~1.2k | XR Interaction Toolkit, Netcode, Unity 6.3 agent protocol with mobile, performance, shader and CI specialists, test design, MR UI |
@@ -75,6 +75,7 @@ Describe what you want, and Claude picks the skill. The path from idea to store:
 |---|---|---|
 | Plan | "Write a one-page GDD and a 1-hour prototype plan" | `game-gdd-author`, `prototype-fast`, `horizon-launch-roadmap` |
 | Set up | "Check my Mac can build for Quest, then create the project" | `unity-quest-dev-setup`, `hz-new-project-creation`, `quest-unity-project-settings` |
+| Block out | "Block out the level from a data file, check the jump distances and show me what the player sees" | `quest-level-blockout`, `quest-asset-sourcing` |
 | Build | "Add hand grabbing, teleport and a world-space menu" | `hz-unity-meta-interaction-sdk`, `hz-unity-meta-quest-ui`, `hz-unity-meta-core-sdk` |
 | Test | "Run the tests, install a dev build on my Quest, show the errors" | `unity-test-runner-cli`, `unity-quest-android-build`, `hz-vr-debug` |
 | Optimise | "It stutters here. Trace it on the headset" | `hz-perfetto-debug`, `hz-unity-code-review` |
@@ -168,7 +169,7 @@ No vetted skill covers Photon or Normcore yet (see [docs/community-candidates.md
 | `hz-unity-code-review` | Meta | VR performance and rendering review of Unity code (see ERRATA about multiview) |
 | `hz-perfetto-debug`, `hz-simpleperf-debug` | Meta | GPU/CPU frame-timing traces; CPU hotspots |
 | `hz-vr-debug` | Meta | Logcat, crashes, screenshots and video from the headset |
-| `hz-xr-simulator-install-and-configure`, `hz-xr-simulator-control` | Meta | Test without a headset in Meta XR Simulator |
+| `hz-xr-simulator-install-and-configure`, `hz-xr-simulator-control` | Meta | Test without a headset in Meta XR Simulator. With Core SDK ≥ 207, **don't** add `com.meta.xr.simulator` (see [ERRATA](skills/meta-official/ERRATA.md)) |
 | `project-auditor-fixes` | Unity | Project Auditor scan-and-fix loop |
 | `unity-test-runner-cli` | **original** | EditMode/PlayMode tests from the CLI or CI, with a results summariser |
 | `test-designing-guide` | community (nowsprinting) | How to design test cases |
@@ -191,6 +192,8 @@ No vetted skill covers Photon or Normcore yet (see [docs/community-candidates.md
 
 | Skill | Source | Use it for |
 |---|---|---|
+| `quest-level-blockout` | **original** | Block out a level from one JSON file: a validator for gaps, height steps and landing widths, generated grey-box geometry with separate gameplay collision, viewpoint screenshots, a top-down map and a Quest 3 per-eye render, all headless. Three compile-tested C# templates |
+| `quest-asset-sourcing` | **original** | Free CC0 art: Kenney, Quaternius, Poly Haven. Which downloads can be scripted (direct zips, OpenGameArt mirrors, Poly Haven API) and which need the user (itch.io, throttled Google Drive), license checks, `CREDITS.md`, Quest budgets. Includes a Poly Haven fetch script |
 | `hz-immersive-designer` | Meta | Comfort, interaction patterns, spatial layout, accessibility |
 | `xr-reference`, `xr-perceptual-constraints-displays-and-tracking`, `xr-rendering-input-and-spatial-understanding`, `xr-platforms-audio-and-comfort`, `xr-ux-design-and-performance-budgeting` | community (the-vibey-project) | XR design reference: cybersickness, comfort, locomotion, rendering, frame budgets |
 | `game-gdd-author`, `game-playtest` | community (AlterLab-IEU) | Write a game design document; plan, run and analyse playtests |
@@ -219,6 +222,15 @@ No vetted skill covers Photon or Normcore yet (see [docs/community-candidates.md
   purpose. Horizon Store purchases go through Meta's Platform SDK.
 - **Horizon Worlds is a different product.** Worlds are built in Meta's own editor and hosted by
   Meta. A Unity game ships as an APK on the **Horizon Store** ([research notes](docs/research-meta.md) §4).
+- **Found by running a real project** (Unity 6000.6.6f1, Meta XR Core SDK 207.0.1, macOS,
+  2026-10-16):
+  - `com.meta.xr.simulator` 81.0.1 doesn't compile with Core 207, which already contains the
+    simulator integration ([ERRATA](skills/meta-official/ERRATA.md)).
+  - metavr 1.8's MCP tools don't load in Claude Code 2.1.301 because of a protocol-field bug; a
+    small relay that ships with `unity-quest-dev-setup` fixes it ([mcp/README.md](mcp/README.md)).
+  - Headless Editor scripts hit several traps: TMP and package imports and Meta's Fix All don't
+    finish in a `-quit` run, and OpenXR validation needs a second run
+    ([batch-mode-traps.md](skills/custom/unity-quest-dev-setup/references/batch-mode-traps.md)).
 - **Not verified yet:** whether `unity build` Android signing flags override a Meta Quest build
   profile, on-device PlayMode tests, the revenue-share percentage, Immersive Image Layer sizes and
   asset-file (DLC) size limits. The skills mark these and tell Claude to confirm them at runtime.
