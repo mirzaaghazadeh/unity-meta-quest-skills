@@ -2,7 +2,7 @@
 
 Every value below comes from developers.meta.com (now under `/vr/resources/<page>/`) and was
 fetched on 2026-10-16, with the experiment, trial, bundle and analytics sections added on
-2026-10-17. The page date is in brackets. Anything marked **unverified** was not confirmed on a
+2026-10-17 and Developer Dashboard observations (age group, Data Use Checkup) on 2026-10-24. The page date is in brackets. Anything marked **unverified** was not confirmed on a
 Meta page. Look it up with `metavr docs search "<topic>"` before quoting it to the user.
 
 ## Prerequisites to publish
@@ -83,7 +83,9 @@ Meta page. Look it up with `metavr docs search "<topic>"` before quoting it to t
 - Children: no Get Age Category API and no Platform SDK features. User data may not be shared
   with Meta.
 - Set it in My Apps > app > Production build > App Product Detail Page > Age Group
-  Self-Certification > Confirm age group.
+  Self-Certification > Confirm age group. In the Dashboard of 2026-10-24 it sits on the app
+  submission's **Build** tab ("Age group self-certification" > Start), and must be done before
+  Submit for Review.
 
 ## Data Use Checkup [2026-10-14]
 - Required for Platform SDK features: User ID, User Profile, Followers, Invites, Blocked Users,
@@ -92,6 +94,11 @@ Meta page. Look it up with `metavr docs search "<topic>"` before quoting it to t
   raised release-channel limit. Meta's hz-store-submit skill puts that threshold at 200 users.
 - Recertify **yearly**, or the app is removed from the Store and loses platform features.
 - Test users are exempt while a request is pending.
+- The Dashboard form (Requirements > Data Use Checkup, 2026-10-24) lists User ID, User profile,
+  User age group, In-app purchases and/or downloadable content, Subscriptions, Avatars, Deep
+  linking, Friends, Blocked users, Invites, Parties, Challenges and Device ban. It asks a use case
+  and description per feature, then data-handling questions, then a certification. Steps:
+  SKILL.md §4. An add-on can't be published until the DUC includes in-app purchases.
 
 ## Price A/B testing [monetization-price-ab-testing 2025-10-01]
 - Dashboard > app > **Growth > Price A/B Testing > Create Pricing Experiment**. Needs the App

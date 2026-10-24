@@ -187,9 +187,9 @@ No vetted skill covers Photon or Normcore yet (see [docs/community-candidates.md
 |---|---|---|
 | `horizon-launch-roadmap` | **original** | Launch timeline, which skill to use when, and the decisions you can't undo |
 | `unity-quest-android-build` | **original** | Dev/release APKs, three build routes, APK checks, build-failure fixes |
-| `horizon-store-publish-unity` | **original** | Dashboard setup → release APK → upload → release channels, device targeting (`quest3+`, "Future devices" for Meta VR Glasses), OBB, DLC, CI |
+| `horizon-store-publish-unity` | **original** | Dashboard setup → release APK → upload (incl. the LIVE draft a submission needs) → release channels, device targeting (`quest3+`, "Future devices" for Meta VR Glasses), OBB, DLC, CI |
 | `horizon-vrc-checklist` | **original** | All 80 active VRCs by ID, each with a Unity check and a headset test |
-| `horizon-store-listing-assets` | **original** | Store art specs, metadata limits, IARC rating, privacy policy, Data Use Checkup, pricing, price A/B tests, Try Before You Buy, bundles, analytics, with an image checker |
+| `horizon-store-listing-assets` | **original** | Store art specs (incl. what the Dashboard's Assets form asks), metadata limits and genres, IARC rating, privacy policy, a step-by-step Data Use Checkup, pricing, add-ons, price A/B tests, Try Before You Buy, bundles, analytics, with an image checker |
 | `hz-unity-platform-sdk` | Meta | Entitlements, achievements, leaderboards, IAP, DLC, rich presence, users |
 | `hz-store-submit` | Meta | Meta's submission walkthrough. **Its specs are out of date**: read [ERRATA.md](skills/meta-official/ERRATA.md) |
 | `submit-game-version` | community (dilmerv) | Real example of build + upload to BETA from Claude Code. Tied to one project; adapt it |

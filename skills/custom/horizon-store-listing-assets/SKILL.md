@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.1.0"
+  version: "1.2.0"
 description: >-
   Prepare and validate a Meta Horizon Store product listing for a Quest game:
   exact art specs (covers, Hero, Logo, Icon, Spatialized tile, screenshots,
@@ -47,16 +47,16 @@ Declare only the input your build supports (section 2).
 | Cover Square | 1440 × 1440 | 1:1 | 24-bit PNG | Same design family |
 | Cover Portrait | 1008 × 1440 | 7:10 | 24-bit PNG | Same design family |
 | Hero Cover | 3000 × 900 | 10:3 | 24-bit PNG | Same design as the covers; branding centered (Asset.4) |
-| Mini Landscape | 1080 × 360 | 3:1 | 24-bit PNG | In the spec table; the page doesn't say where it's shown. Check whether the Dashboard asks for it |
-| Logo | variable, max 9000 × 1440 | - | 32-bit PNG | **Transparent background** (Asset.1); legible when scaled |
+| Mini Landscape | 1080 × 360 | 3:1 | 24-bit PNG | In the spec table; the page doesn't say where it's shown. The Dashboard's Assets form had **no field** for it on 2026-10-24 |
+| Logo | 360 × 360 min, 9000 × 1440 max | - | 32-bit PNG | **Transparent background** (Asset.1); legible when scaled. **Optional** in the Dashboard form |
 | Icon | 512 × 512 | 1:1 | 24-bit PNG | Solid fill, **no transparency**, square corners |
-| Spatialized tile | 180 × 180 background + 180 × 180 foreground | 1:1 | PNG | Foreground layer transparent; content inside the safe area with 18 dp padding |
+| Spatialized tile | Dashboard: 512 × 512 background + 512 × 512 foreground; 180 × 180 versions optional | 1:1 | PNG | **Optional.** Background solid; foreground transparent, inside a 392 × 392 safe area (Dashboard form, 2026-10-24). The guidelines page gives only 180 × 180 with 18 dp padding |
 | Screenshots | 2560 × 1440 | 16:9 | 24-bit PNG | 5 images, no duplicates; real in-experience content; no branded art |
 | Trailer | 1080p min, "2K" max | 16:9 | MP4, H.264, AAC | 30 s to 2 min (Asset.7: ≤ 2 min); may open and close on the logo but not use it throughout |
 | Trailer cover | 2560 × 1440 | 16:9 | 24-bit PNG | Landscape |
-| 360 preview (cubestrip) | ≥ 12288 × 2048 target | 6:1 | 32-bit PNG, JPEG (q ≥ 80), KTX | ≤ 2.3 MB; face order left, right, up, down, front, back; content ≥ 10 m from the viewer |
-| 360 preview (equirect) | ≥ 7680 × 3840 target | 2:1 | 24-bit PNG, JPEG (q ≥ 80), KTX | ≤ 2.3 MB |
-| Immersive Image Layers (Left, Right, Logo) | unverified, not on the guidelines page | - | - | Transparent backgrounds (Asset.9). Check the Dashboard upload form |
+| 360 preview (cubestrip) | ≥ 12288 × 2048 target; Dashboard minimum 6000 × 1000 | 6:1 | 32-bit PNG, JPEG (q ≥ 80), KTX | Optional. ≤ 2.3 MB; face order left, right, up, down, front, back; content ≥ 10 m from the viewer |
+| 360 preview (equirect) | ≥ 7680 × 3840 target; Dashboard minimum 6000 × 3000 | 2:1 | 24-bit PNG, JPEG (q ≥ 80), KTX | Optional. ≤ 2.3 MB |
+| Immersive Image Layers (Left, Right, Logo) | unverified, not on the guidelines page | - | - | Transparent backgrounds (Asset.9). The Dashboard's Assets form had no field for them on 2026-10-24 |
 
 Global rules:
 - **PNG depth:** every asset accepts 24- or 32-bit PNG, but "the 8-bit alpha layer is ignored
@@ -66,6 +66,11 @@ Global rules:
 - Keep titles and key focal points in the **safe area**. The bleed area may be cropped. Templates:
   https://metaque.st/storetemplates. Meta's page gives no pixel safe-area values, so use the PSDs.
 - The Dashboard has a cropping tool and an AI expansion tool for reaching the required sizes.
+  The Assets form (2026-10-24) also offers a **Universal basic asset**: one PNG of at least
+  2560 × 1440 from which it generates every cover size. Each cover upload opens a **Safe area
+  preview** ("Use image") that shows whether the title stays clear of the cropped edges. Required
+  there: the three covers, the hero, the icon and 5 screenshots; logo, spatialized tile, trailer
+  and 360° preview are optional.
 - Each extra store language needs its own localized assets.
 - Test cover art before a launch or a sale with the Dashboard's **creative A/B test** on the
   product page (ab-testing-instructions, 2024-12-16).
@@ -99,14 +104,17 @@ ImageMagick, plus `ffprobe`. File names it expects: `cover_landscape.png`, `cove
 | Name | **max 40 characters**. Meets content guidelines (Publishing.4); no other platforms' names |
 | Short description | **max 500 characters** (Publishing.5) |
 | Long description | **max 1500 characters** (Publishing.6) |
-| Search keywords | optional; relevant only (Publishing.7) |
-| Categorization | Category + Genres |
-| Specs | Game Modes, Supported Controllers, Play Area, Supported Player Modes, Comfort Level, Internet Connection, Subscription, Purchase-blocked devices, Social Features, Supported Languages in App, Early Access |
-| Details | Publisher Name, Website (Publishing.1, must resolve), Privacy Policy (Privacy.1-4), optional External Support (Publishing.2) and Terms of Service (Publishing.3) |
+| Search keywords | optional, **up to 5**; relevant only (Publishing.7). The field picks from suggestions and rejected a keyword with a space ("hand tracking") on 2026-10-24 |
+| Categorization | Category + a **required primary genre** + up to 2 more, plus optional Gameplay mechanics. Game genres offered (2026-10-24): Action, Adventure, Education, Hangout, Narrative, Party game, Puzzle, Rhythm, Role playing, Sandbox, Simulation, Sports. No Casual or Arcade genre: use keywords for those |
+| Specs | Game Modes, Supported Controllers, Play Area, Supported Player Modes, Comfort Level, Internet Connection, Subscription, Purchase-blocked devices, Social Features, Supported Languages in App, Early Access. The Dashboard pre-fills some answers from the uploaded build (Internet Connection, for one); check each against the real game |
+| Details | Developer and Publisher (64 characters each; Developer defaults to the team name until "Use team name" is unticked), Website (Publishing.1, must resolve), Privacy Policy (Privacy.1-4), optional External Support (Publishing.2) and Terms of Service (Publishing.3) |
 | Content rating | Developer contact email (shared with IARC) + IARC certificate |
 
 Dashboard order: App Submissions > submission > App Metadata (name, descriptions, languages) >
-Categorization > Specs > Details > Assets > Content Rating, saving each step.
+Categorization > Specs > Details > Assets > Content Rating, saving each step. A submission has
+four tabs, **Submission**, **Pricing**, **Build** and **App metadata** (2026-10-24). **Metadata
+preview** (Start preview) shows the product page in the Store, the phone app and the headset for
+an hour, visible only to you.
 
 Copywriting checklist:
 - The first sentence of the short description says what the player does, in VR terms ("Climb...",
@@ -144,6 +152,21 @@ Copywriting checklist:
   Platform SDK feature. The same value goes in `ovr-platform-util --age-group`.
 - Don't derive the age group from the IARC rating alone. Meta says so explicitly.
 
+In the Dashboard (observed 2026-10-24):
+
+- **Age group** is now on the submission's **Build** tab: "Before you can submit this app for
+  review, you must self-certify its age group" > Start. The last step is a legal
+  self-certification in the developer's name; leave Confirm to the user. The build upload dialog
+  also warns that it's "required before publishing a binary".
+- **IARC:** Content rating > country of origin and contact email > **Add certificate** opens the
+  IARC questionnaire in a new tab, where the user accepts IARC's terms. Follow-up questions appear
+  as you answer (for example Digital Purchases > "Purchases of digital goods" > random items?
+  trading?). The tab ends on "IARC Certificate Created". A game with one durable unlock and no
+  violence came back as ESRB Everyone and PEGI 3, with the "In-Game Purchases" notice.
+- **Sharing preferences:** the Submission tab shows "Please confirm your app sharing preferences
+  before submitting". Those settings cover players streaming and capturing the app, under Meta's
+  Sharing Terms, which the user accepts or declines.
+
 ## 4. Privacy policy and Data Use Checkup
 
 Write a privacy policy that the team hosts, with a stable URL, and that covers:
@@ -161,10 +184,48 @@ reviews the privacy policy as part of it. Auto-approval ends at the first review
 raised channel limit. Recertify **yearly** or the app is removed. Test users are exempt from DUC
 gating while a request is pending. DUC compliance also gates the User Demographics dashboard.
 
+**Filling it in** (Requirements > Data Use Checkup, observed 2026-10-24; the user signs it). The
+page warns that DUCs "are most commonly rejected for privacy policy issues and incomplete feature
+requests".
+
+1. **Add** each feature the game uses: User ID, User profile, User age group, In-app purchases
+   and/or downloadable content, Subscriptions, Avatars, Deep linking, Friends, Blocked users,
+   Invites, Parties, Challenges, Device ban. Each request asks for:
+   - a use case and a description of how the feature adds value and why it's needed;
+   - optional screenshots;
+   - an "If approved, I agree…" checkbox.
+
+   **Add to request** stays disabled until all of that is filled in; if it stays disabled after
+   pasting text, type a character. Without User ID and User Profile the page recommends them "if
+   you wish to use the Platform SDK".
+2. **Submit requests** opens **Data handling**:
+   - data processors or service providers with access to Meta user data;
+   - the responsible person or entity, and its country;
+   - whether you gave users' data to public authorities in the past 12 months;
+   - your policies for such requests: Required review, Provisions for challenging, Data
+     minimization, Documentation, **None of the above**, or "prohibited from answering", which
+     Meta warns may restrict access;
+   - your organization's country.
+3. **Review requests**, then **Submit**. The privacy policy URL is reviewed with the request, and
+   the form ends with an "I certify compliance with all applicable Meta terms and policies…" box.
+   While one checkup is under review, no other can be submitted.
+
+These are statements in the developer's name. An agent can fill the form in, but should leave
+the certification boxes to the user and must not claim policies the developer doesn't have.
+
 ## 5. Pricing, experiments and promotions (summary; details in references)
 
 - App price: free, or **$0.99 to $299.99** MSRP. Add-ons: $0.99 to $99.99. Local pricing per
-  country is supported. Price can change after submission.
+  country is supported. Price can change after submission. (A web app packaged as a PWA can only
+  be free; that doesn't apply to Unity APKs.)
+- **Add-ons** (Monetization > Add-ons, observed 2026-10-24):
+  - **SKU**, which the game's code uses (`hz-unity-platform-sdk`);
+  - **Add-on Type** (Durable was preselected);
+  - **Applications**, where you tick the app;
+  - optional **Show in Store**, a store listing for the add-on that the content team reviews;
+  - then **Pricing** and **Metadata** (the name and description shown in Meta's purchase dialog).
+
+  **Publish stays disabled** until the Data Use Checkup includes in-app purchases.
 - **Price A/B test** (US only, 2025-10-01 page): Growth > Price A/B Testing > Create Pricing
   Experiment; a boundary or incrementality test that starts ≥ 3 days after setup and runs up to
   90 days. It can't be edited after submission and can cost sale eligibility if it ends within
@@ -212,5 +273,6 @@ All pages moved from `developers.meta.com/horizon/` to `/vr/` (the old links red
 - https://developers.meta.com/vr/essentials/app-compatibility/ (2026-10-13), /ai-developer-assistant/ (2026-09-24)
 - https://developers.meta.com/vr/policy/distribution-options/ (Keys, 2026-03-23), /app-policies/ (comfort ratings §5.1, IARC/GRAC §5.2, 2026-03-10)
 - https://developers.meta.com/vr/blog/smarter-pricing-better-trials-deeper-analytics-for-VR-developers/ (2026-08-11); https://developers.meta.com/blog/meta-connect-recap-start-building-the-future-of-vr/ (2026-09-24)
+- Meta Developer Dashboard, observed while listing a Quest app with a durable add-on (2026-10-24): Assets form, App metadata forms, Build and Submission tabs, IARC questionnaire, Monetization > Add-ons, Data Use Checkup
 
-Last verified: 2026-10-17
+Last verified: 2026-10-24

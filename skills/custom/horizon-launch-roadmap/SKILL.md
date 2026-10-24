@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.1.0"
+  version: "1.2.0"
 description: >-
   Plan and sequence a Unity Meta Quest game launch on the Meta Horizon Store:
   which skill to use at each phase, the irreversible decisions (package name,
@@ -52,11 +52,11 @@ describes a content review, so plan for one.
 |---|---|---|
 | 0. Setup | Unity ≥ 6000.0.66f2, Meta XR SDK, OpenXR, URP; Dashboard org + app; verify org | `hz-quest-verify-first`, `unity-cli`, `hz-new-project-creation`, `hz-unity-meta-core-sdk`, `quest-unity-project-settings` |
 | 1. Build the game | Interaction, UI, comfort, MR features; hands and gaze if you target VR Glasses | `hz-unity-meta-interaction-sdk`, `hz-unity-meta-quest-ui`, `hz-immersive-designer`, `hz-unity-meta-mixed-reality-utility-kit`, `meta-vr-glasses-unity` |
-| 2. Platform features | Entitlement, achievements, IAP, leaderboards, presence | `hz-unity-platform-sdk` (fill in DUC before submitting) |
+| 2. Platform features | Entitlement, achievements, IAP, leaderboards, presence; create add-ons (Monetization > Add-ons; publishing one needs the DUC) | `hz-unity-platform-sdk` (fill in DUC before submitting; steps in `horizon-store-listing-assets` §4) |
 | 3. Internal and external testing | Signed builds to ALPHA/BETA (200 users default, up to 2,500); test users | `horizon-store-publish-unity`, `metavr-cli`, `hz-vr-debug` |
 | 4. Performance and compliance | OVR Metrics 45-min runs; VRC audit; fix FAILs | `horizon-vrc-checklist`, `hz-perfetto-debug`, `hz-unity-code-review` |
 | 5. Listing | Art, metadata, IARC, age group, privacy policy, price | `horizon-store-listing-assets` |
-| 6. Submit | Production channel + Submission tab > Submit for Review | `hz-store-submit` |
+| 6. Submit | A **draft build in the Production (LIVE) channel** attached on the Build tab (only those can be attached), age group self-certified, sharing preferences confirmed, then Submission tab > Submit for Review (the user's click) | `horizon-store-publish-unity` Step 7, `hz-store-submit` |
 | 7. Release and live ops | Release now or schedule; subscribe to analytics alerts; sales, bundles, promo codes, keys; price A/B tests (US only) and Try Before You Buy once there is data; updates via production; yearly DUC recertification | `horizon-store-listing-assets` (references/policy-pricing.md), `horizon-store-publish-unity` |
 
 ## Timeline, counting back from launch day L
@@ -101,5 +101,6 @@ Pages moved from `developers.meta.com/horizon/` to `/vr/` (old links redirect).
 - https://developers.meta.com/blog/meta-connect-recap/ (Connect 2026, 2026-09-24)
 - https://developers.meta.com/vr/blog/smarter-pricing-better-trials-deeper-analytics-for-VR-developers/ (alert thresholds, 2026-08-11)
 - https://developers.meta.com/vr/blog/get-apps-ready-app-lab-meta-horizon-store-meta-quest-developers/ (App Lab merge)
+- Meta Developer Dashboard, observed while submitting a Quest app (2026-10-24): Build and Submission tabs, Add-ons, Data Use Checkup
 
-Last verified: 2026-10-17
+Last verified: 2026-10-24
