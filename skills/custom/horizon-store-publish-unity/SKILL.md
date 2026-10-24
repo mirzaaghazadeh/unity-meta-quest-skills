@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.1.0"
+  version: "1.2.0"
 description: >-
   Ship a Unity Meta Quest game build to the Meta Horizon Store: one-time
   Developer Dashboard setup (org verification, app record, App ID and
@@ -63,7 +63,7 @@ Related skills:
 | User token (alternative) | **Account > Account settings > Get Oculus platform utility token > Generate token** | Treat it like a password. |
 | Developer Distribution Agreement | `https://developers.meta.com/horizon/manage/organizations/<ORG_ID>/legal-documents/` | Typical first-upload failure: "must first agree to our Developer Distribution Agreement". Only an org admin can sign it. Pause and ask the user. |
 | Release-channel testers | App > Distribution > Release Channels | ALPHA/BETA/RC are invite-only and start empty. The default cap is 200 users; you can request up to 2,500. |
-| Age group self-certification | My Apps > app > Production build > App Product Detail Page > Age Group Self-Certification | Values: Teens and Adults (13+), Mixed Ages, Children (10-12). Same values as `--age-group`. |
+| Age group self-certification | App submission > **Build** tab > "Age group self-certification" > Start (Dashboard, 2026-10-24; older docs: My Apps > app > Production build > App Product Detail Page) | Values: Teens and Adults (13+), Mixed Ages, Children (10-12). Same values as `--age-group`. The last step is a legal self-certification: the user confirms it. |
 
 Sources: publish-organization-verification, publish-reference-platform-command-line-utility,
 publish-release-channels, age-groups (URLs at the end). The DDA URL pattern comes from Meta's
@@ -237,6 +237,29 @@ Alternatives:
   not build it.
 - Meta Quest Developer Hub, or the Dashboard upload page.
 
+**The Dashboard upload** (Distribution > Builds, observed 2026-10-24):
+
+- The dialog defaults to the **LIVE (Production) channel as a Draft**. That's the build a review
+  needs: the submission's Build tab says "Only draft builds in the Production Channel may be
+  attached to Submissions". A LIVE draft reaches no players until review passes and the user
+  releases it. Testers still need the build on ALPHA/BETA, which is a separate upload or a
+  promotion.
+- The steps are:
+  1. APK, validated in the dialog ("APK validation passed");
+  2. optional files;
+  3. Supported devices (Quest 2, Pro, the Quest 3 family and Future devices were preselected);
+  4. Review, then Start upload.
+
+  The dialog warns "Age group self-certification is required before publishing a binary"; the
+  upload itself works without it.
+- **Browser automation:** the APK file input is created only when the button is clicked, which
+  opens a native dialog an agent can't use. Patching `HTMLInputElement.prototype.click` keeps the
+  input on the page so a file can be attached. Files attached by automation can arrive as
+  `application/octet-stream`, and the page checks the type on the `input` event, before
+  `change`. A capture-phase `input` listener that relabels the file as
+  `application/vnd.android.package-archive` gets it accepted. Add both again after each page
+  reload.
+
 ## Step 5a: Device targeting and Meta VR Glasses
 
 Meta VR Glasses (spring 2027) use the same Store, entitlements and add-ons as Quest. Which builds
@@ -281,9 +304,18 @@ ovr-platform-util set-release-channel-build --app-id "$META_APP_ID" --token "$ME
 1. Run `horizon-vrc-checklist`, then `horizon-store-listing-assets`.
 2. Data Use Checkup: required if the app uses Platform SDK features such as User ID, Profile,
    Followers, IAP, Subscriptions or User Age Group. Auto-approval ends at first submission, so
-   finish feature testing first (`hz-store-submit` covers the one-way doors).
-3. Submit at least 2 weeks before the target launch date. Review is technical first, then content.
-4. Hand off to `hz-store-submit` for the Dashboard Submission tab.
+   finish feature testing first (`hz-store-submit` covers the one-way doors). Add-ons can't be
+   published until the DUC includes in-app purchases. The form, step by step:
+   `horizon-store-listing-assets` §4.
+3. On the submission (Dashboard, 2026-10-24):
+   - attach a **LIVE draft** build on the Build tab;
+   - finish the age group self-certification there;
+   - confirm the **app sharing preferences** (the Submission tab asks before submitting);
+   - fill the Submission tab: a name only you see, the contact email, notes for the reviewer
+     and test credentials.
+4. Submit at least 2 weeks before the target launch date. Review is technical first, then content.
+5. Hand off to `hz-store-submit` for the Dashboard Submission tab. **Submit for Review** is the
+   user's click.
 
 ## CI
 
@@ -327,5 +359,6 @@ final URLs.
 - https://developers.meta.com/vr/resources/publish-data-use/ (updated 2026-10-14)
 - https://developers.meta.com/vr/resources/publish-submit/ (updated 2026-05-08)
 - Meta `metavr-cli` docs (`metavr store dist`, `metavr tools`; `docs/metavr-cli-reference.md`, metavr 1.8.0.17.10) and Unity `unity-cli` skill (`unity build`)
+- Meta Developer Dashboard, observed while submitting a Quest app (2026-10-24): build upload dialog, the submission's Build and Submission tabs
 
-Last verified: 2026-10-17
+Last verified: 2026-10-24
