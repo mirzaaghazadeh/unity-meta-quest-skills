@@ -54,8 +54,12 @@ the conversation). Check again after each metavr or Claude Code update, and drop
 direct command connects. The `npx -y metavr mcp server` form from `mcp.json.example` can be wrapped
 the same way.
 
-**Still expected on 2026-10-17 (not re-tested):** npm `metavr` 1.8.1 (2026-10-01) changed only the
-npm download wrapper and still installs binary 1.8.0.17.10, the version this was seen with.
+**Re-tested 2026-10-25: no longer seen.** With Claude Code 2.1.310, the same binary 1.8.0.17.10
+(npm `metavr` 1.8.1 changed only the download wrapper) registered directly as
+`~/.metavr/bin/metavr mcp server --update` connected, and its tools loaded after
+`/reload-plugins`. The `meta-vr` plugin's `npx -y metavr mcp server` failed once with `tools fetch
+failed — request _meta is missing or has malformed required fields`, then connected on the next
+check. Try the direct command first, and keep the relay for older Claude Code versions.
 
 ## Meta XR Operator
 

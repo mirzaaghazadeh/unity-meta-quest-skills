@@ -44,8 +44,13 @@ reference:
 
 | Route (Meta) | What it installs | Source |
 |---|---|---|
-| `metavr init` | The metavr skill, the MCP server config, agent plugins | [install 2026-08-31] |
-| Claude Code plugin: `/plugin marketplace add meta-quest/agentic-tools`, `/plugin install meta-vr@meta-quest` (also Codex, Copilot, Cursor) | All skills + an MCP server run through `npx` | [other-tools 2026-08-31] |
+| `metavr init` | The metavr skill, the MCP server config, agent plugins. All at **user scope**; the full list, and how to move it into one project, is in `unity-quest-dev-setup` | [install 2026-08-31]; observed 2026-10-25 |
+| Claude Code plugin: `/plugin marketplace add meta-quest/agentic-tools`, then `/plugin install meta-vr@meta-vr` (also Codex, Copilot, Cursor) | All skills + an MCP server run through `npx` | [other-tools 2026-08-31] |
+
+**Correction to the other-tools page:** it gives `/plugin install meta-vr@meta-quest` for Claude
+Code, but the repo's `.claude-plugin/marketplace.json` names the marketplace `meta-vr`, so the
+plugin is `meta-vr@meta-vr` (agentic-tools `3a8553d`; `metavr init` installed it under that name,
+2026-10-25).
 | `gh skill install` / `npx skills add` / `npx ctx7@latest skills install` | Skills only | [other-tools 2026-08-31] |
 | `metavr skills install --all` | Skills bundle into `~/.agents/skills` | reference §skills |
 | VS Code "Meta Horizon" extension; MQDH | Bundled CLI; the extension registers the MCP server and ships chat skills; MQDH has its own MCP server | [other-tools 2026-08-31] |
@@ -68,7 +73,7 @@ for the same names. Register metavr's MCP server once (`claude mcp list`).
 | `metavr mcp server` speaks stdio only; agents read MCP config at startup, so restart after `metavr mcp install` | [troubleshoot 2026-08-27] |
 | The server reports its internal name as `hzdb` even when registered as `metavr` | [troubleshoot 2026-08-27] |
 | The old "AI tooling / MCP" page (`/horizon/essentials/ai-tooling-mcp/`) now redirects to "Install Meta VR CLI"; the AI tools page sends MCP setup to "Meta VR CLI in other tools" | redirect checked 2026-10-17; [ai-tools-page] |
-| Claude Code `tools/list` validation failure with metavr 1.8.0.17.10 (see `mcp/README.md`): the binary is unchanged in npm 1.8.1, so expect it still; **not re-tested** | this library |
+| Claude Code `tools/list` validation failure with metavr 1.8.0.17.10 (see `mcp/README.md`): **gone with Claude Code 2.1.310**. The same binary, registered with no relay, connected and its tools loaded | re-tested 2026-10-25 |
 
 ## 5. Meta XR Operator (cross-engine summary)
 
