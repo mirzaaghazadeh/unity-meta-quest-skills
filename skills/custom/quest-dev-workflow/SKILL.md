@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.2.0"
+  version: "1.2.1"
 description: >-
   Start-here map for making a Meta Quest VR game in Unity with Claude Code and
   shipping it on the Meta Horizon Store, for Quest 3/3S and the upcoming Meta VR
@@ -43,7 +43,8 @@ before acting on a step.
    Missing tools → **`unity-quest-dev-setup`** (Unity CLI, Editor, Android modules) and
    **`metavr-cli`** (Meta VR CLI).
 3. Prefer driving the open Editor (**`unity-cli`**, **`unity-pipeline`**: `unity command
-   run_script` / `eval`) over hand-editing `.unity`, `.prefab` or `.asset` YAML.
+   run_script` / `eval`; in Pipeline 0.9 `script run` / `script eval`, see
+   `skills/meta-official/ERRATA.md`) over hand-editing `.unity`, `.prefab` or `.asset` YAML.
 
 ## 2. The path from idea to store
 

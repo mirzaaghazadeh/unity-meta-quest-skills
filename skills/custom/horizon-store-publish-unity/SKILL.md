@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.2.0"
+  version: "1.2.1"
 description: >-
   Ship a Unity Meta Quest game build to the Meta Horizon Store: one-time
   Developer Dashboard setup (org verification, app record, App ID and
@@ -90,6 +90,8 @@ Set these in the project, or let `scripts/QuestReleaseBuild.cs` enforce them at 
 | Build App Bundle (AAB) | Off | Store takes an APK under 1 GB plus OBB files under 4 GB (VRC.Quest.Packaging.5) |
 | Split Application Binary | On only if the APK would exceed 1 GB | Produces `main.obb`. Upload it with `--obb` |
 | Keystore | Custom release keystore | VRC.Quest.Packaging.2 requires APK Signature Scheme v2. Debug-signed builds are not release builds |
+| `Assets/Resources/DevAgentSettings.asset` | **Not in the build** | Meta's Immersive Debugger keeps its AI assistant's `accessToken` and LAN server address there, and Unity packs everything in `Resources/`, git-ignored or not (observed 2026-10-25, Core 207.0.1). Move it out of `Assets/` for the release build and back afterwards; `unity-quest-android-build` path B has the pattern |
+| Eye Tracking Support | None unless the app reads gaze | It adds `com.oculus.permission.EYE_TRACKING`; unused, it's a Security.2 risk (`quest-unity-project-settings`) |
 
 The Meta XR Core SDK writes the Quest manifest entries: `com.oculus.intent.category.VR`
 (required for OpenXR apps), `android.hardware.vr.headtracking` (`required="true"` for
@@ -183,7 +185,9 @@ package/versionCode/versionName, minSdk and targetSdk ranges, compileSdk >= targ
 arm64-v8a-only native code, debuggable flag, v2 signature and a non-debug certificate,
 VR category, headtracking, supportedDevices, installLocation, excludeFromRecents, the
 declared input (controllers, hands or both), `com.meta.store.defaultDeviceTargets` if set, the
-1 GB APK limit, prohibited permissions (FAIL) and review-required permissions (WARN).
+1 GB APK limit, prohibited permissions (FAIL) and review-required permissions (WARN). It reads
+minSdk from either `minSdkVersion:` (aapt2) or `sdkVersion:` (the old aapt); before 2026-10-25 it
+read only the second, so aapt2 runs reported a false `minSdkVersion ''` FAIL.
 
 Then smoke-test on a headset with the Meta CLI (see `metavr-cli`):
 
@@ -360,5 +364,6 @@ final URLs.
 - https://developers.meta.com/vr/resources/publish-submit/ (updated 2026-05-08)
 - Meta `metavr-cli` docs (`metavr store dist`, `metavr tools`; `docs/metavr-cli-reference.md`, metavr 1.8.0.17.10) and Unity `unity-cli` skill (`unity build`)
 - Meta Developer Dashboard, observed while submitting a Quest app (2026-10-24): build upload dialog, the submission's Build and Submission tabs
+- A Unity 6000.6.6f1 + Core 207.0.1 release APK checked with `verify-quest-apk.sh` and `aapt2 dump badging` (2026-10-25): the minSdk parsing fix, `DevAgentSettings` and the eye-tracking permission
 
-Last verified: 2026-10-24
+Last verified: 2026-10-25

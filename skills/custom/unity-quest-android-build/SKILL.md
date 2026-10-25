@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.1.0"
+  version: "1.2.0"
 description: Builds Meta Quest (Horizon OS) Android APKs from a Unity project with the unity CLI, as development or release builds, for Quest and Meta VR Glasses. Offers three routes (a Meta Quest build profile with no code, a BuildPipeline script through --execute-method, or a build inside the open Editor), plus toolchain and module checks, the Quest packaging baseline (APK, ARM64, IL2CPP, API 32/34, ASTC), build-failure troubleshooting, and APK checks with aapt2, apksigner and unzip (64-bit libraries only, hand/eye-tracking declarations, no experimental flag or Meta XR Operator layer in release). Use when asked to build or export a Quest APK, make a dev build to try on the headset, pick a headless or CI build route, check a build for Meta VR Glasses, or fix an Android, Gradle or IL2CPP build failure. For uploading to Horizon Store release channels, use horizon-store-publish-unity.
 ---
 
@@ -84,10 +84,14 @@ anything:
 ```bash
 mkdir -p <project>/AgentScripts
 cp <this-skill>/templates/QuestPreflight.cs <project>/AgentScripts/
-unity command run_script --project-path <project> --file AgentScripts/QuestPreflight.cs \
+unity command script run --project-path <project> --file AgentScripts/QuestPreflight.cs \
   --entry QuestPreflight.Run --format json
-unity command list_build_profiles --project-path <project> --format json
+unity command build list_profiles --project-path <project> --format json
 ```
+
+These are Pipeline 0.9 names (`<group> <name>`). Pipeline 0.8 calls them `run_script` and
+`list_build_profiles`, and path C's `build run` / `build status` were `build` / `build_status`
+(table in `skills/meta-official/ERRATA.md`).
 
 **No Editor:** `unity build <project> --list-profiles --format json` lists the build profiles.
 Then read the settings with the build script's check, which runs in Step 2 path B.
@@ -154,16 +158,47 @@ unity build <project> --target Android --execute-method QuestBuild.BuildRelease 
   `PlayerSettings`. Step 3 verifies the APK instead.
 - For an `--execute-method` build, the CLI takes its result from the Editor's exit code. The script
   calls `EditorApplication.Exit(1)` on failure, so exit `6` means a real failure.
+- Observed 2026-10-25 (unity CLI 1.0.0-beta.13, Unity 6000.6.6f1, Core 207.0.1):
+  - `unity build` spawns its own batch-mode Editor, so **an Editor that has the project open must
+    be closed first**: `unity close <project>` (the path is positional; `--project-path` was
+    rejected). Reopen afterwards with `unity open <project>` and `unity status --until-ready`.
+  - Twice, Unity aborted with **SIGABRT on exit after logging the build's success**, and the CLI
+    reported "Build failed: Unity process stopped with signal SIGABRT". The APK was complete both
+    times. Log your own result line from the build method (size, version, errors) and read it, then
+    verify the APK (Step 3), rather than trusting the exit status alone.
+  - If the game uses Unity Localization (or any Addressables), build the content before
+    `BuildPipeline.BuildPlayer` in your method:
+    `AddressableAssetSettings.BuildPlayerContent(out var result)`, failing on `result.Error`.
+  - Everything under `Resources/` ships, git-ignored or not. Meta's Immersive Debugger keeps its AI
+    assistant's settings (`Assets/Resources/DevAgentSettings.asset`, an `accessToken` and a LAN
+    address) there. In a release build method, move it (and its `.meta`) out of `Assets/`, for
+    example into `Library/`, build, and move it back in a `finally`; an `IPreprocessBuildWithReport`
+    that throws `BuildFailedException` for any non-development build while it's still in
+    `Resources/` catches the other routes. Check the APK afterwards (no match for the file name or
+    the address in `assets/bin/Data`).
 
 ### C. Inside the open Editor (no restart, no second license seat)
 
 ```bash
-unity command build --project-path <project> -- --target Android \
+unity command build run --project-path <project> -- --target Android \
   --outputPath Builds/Quest/<App>.apk --dry_run true                  # validate first
-unity command build --project-path <project> -- --target Android \
+unity command build run --project-path <project> -- --target Android \
   --outputPath Builds/Quest/<App>.apk --confirm true                  # queue it
-unity command build_status --project-path <project> --format json     # poll until status "completed"
+unity command build status --project-path <project> --format json     # poll until status "completed"
 ```
+
+**Modal dialogs stall this path** (observed 2026-10-25): a build in the open Editor waited 25
+minutes on a decision dialog (`DisplayDecisionDialogWithOptOut` in
+`PostprocessBuildPlayer.PrepareForBuild`) that the Pipeline doesn't report: `editor status` just
+times out. On macOS `sample <Unity pid>` shows `NSAlert runModal`. Ask the user to answer it, or
+close the Editor and use path B, where batch mode can't show dialogs.
+- Killing a stuck Editor leaves `Temp/__Backupscenes/0.backup`, and the next open stalls on a
+  restore prompt. If the scene is committed, delete the backup before reopening.
+- An interrupted build can leave OpenXR, XR General and Localization settings in Player Settings'
+  **preloaded assets**. Check `preloadedAssets` in `ProjectSettings/ProjectSettings.asset` against
+  git and restore it.
+- `build run` straight after an Addressables `BuildPlayerContent` eval once returned "No Pipeline
+  instance found" and queued nothing (`build status` idle); retrying it once worked.
 
 - Add `--profileName "<Meta Quest profile name>"` to build from a profile, and `--options Development`
   for a dev build. The `--` fence keeps those parameters away from the CLI's own flags. Parameter
@@ -172,7 +207,7 @@ unity command build_status --project-path <project> --format json     # poll unt
 - The build uses the Editor's **current** signing settings. Unity doesn't save keystore passwords,
   so a release-signed build from a fresh Editor session needs them entered in Player Settings
   first. Use path A or B for release builds.
-- `build_status` returns `result` (`Succeeded`/`Failed`), `errors[]`, `outputPath` and `files[]`.
+- `build status` returns `result` (`Succeeded`/`Failed`), `errors[]`, `outputPath` and `files[]`.
 
 ### Build failed?
 
@@ -205,8 +240,9 @@ APKSIGNER=$(find "$SDK" -name apksigner -type f | sort | tail -1)
 java -version >/dev/null 2>&1 || export PATH="$SDK/../OpenJDK/bin:$PATH"
 APK=Builds/Quest/<App>.apk
 
-"$AAPT2" dump badging "$APK" | grep -E "^package:|sdkVersion|targetSdkVersion|native-code"
-#   expect: versionCode='<N>'  sdkVersion:'32'  targetSdkVersion:'34'  native-code: 'arm64-v8a' (only)
+"$AAPT2" dump badging "$APK" | grep -E "^package:|[sS]dkVersion|native-code"
+#   expect: versionCode='<N>'  minSdkVersion:'32'  targetSdkVersion:'34'  native-code: 'arm64-v8a' (only)
+#   (aapt2 prints minSdkVersion:; the old aapt printed sdkVersion:)
 "$AAPT2" dump xmltree --file AndroidManifest.xml "$APK" \
   | grep -E "installLocation|debuggable|com.oculus.intent.category.VR|com.oculus.supportedDevices"
 "$APKSIGNER" verify --verbose --print-certs "$APK" | grep -E "Verified using v2|Signer #1 certificate DN"
@@ -242,6 +278,13 @@ metavr app launch <applicationId>
 metavr log --tag Unity                           # first-launch errors
 ```
 
+Unattended checks on a **Quest 3S** (observed 2026-10-25, metavr 1.8): with nobody wearing it, the
+headset sleeps within seconds of a launch, the app gets `APP_CMD_PAUSE`/`STOP`, and
+`metavr capture screenshot -o shot.png` comes back black (it warns that metacam is missing and
+falls back to screencap). Run `metavr device proximity --disable`, relaunch, capture, then
+`metavr device proximity --enable` again. Logcat's `VrApi FPS=` lines give the frame rate, the App
+(GPU) time in ms and GPU %.
+
 `adb` comes with the Unity SDK module under `.../SDK/platform-tools/adb`. For store upload
 (`ovr-platform-util upload-quest-build`), OBB and asset files, and release channels, use
 **`horizon-store-publish-unity`**. For review, use **`hz-store-submit`**.
@@ -272,7 +315,8 @@ build step to path A or B. The full recipe, secrets layout and licensing caveats
 - Unity CLI reference (`build`, exit codes, env vars): https://docs.unity.com/en-us/unity-cli/unity-cli-reference.md
 - Unity CLI release notes (Meta Quest builds via `--profile`, Android signing flags): https://docs.unity.com/en-us/unity-cli/release-notes.md
 - Official `unity-cli` skill, `references/build-run-test.md`: https://github.com/Unity-Technologies/skills/tree/main/skills/unity-cli
-- Pipeline `build` / `build_status` / `list_build_profiles`: https://docs.unity3d.com/Packages/com.unity.pipeline@0.8/manual/commands/build-and-compilation.html
+- Pipeline `build` / `build_status` / `list_build_profiles` (0.8 names): https://docs.unity3d.com/Packages/com.unity.pipeline@0.8/manual/commands/build-and-compilation.html
+- Pipeline 0.9.1-exp.1 (`build run`, `build status`, `build list_profiles`, `script run`): https://docs.unity3d.com/Packages/com.unity.pipeline@0.9/manual/index.html (read 2026-10-25)
 - Meta Quest build profile (6.3 LTS): https://docs.unity3d.com/6000.3/Documentation/Manual/xr-meta-quest-build-profile.html
 - Meta Quest build profile settings (defaults): https://docs.unity3d.com/Manual/xr-meta-quest-build-profile-settings.html
 - `BuildPipeline.BuildPlayer`: https://docs.unity3d.com/6000.3/Documentation/ScriptReference/BuildPipeline.BuildPlayer.html
@@ -290,8 +334,10 @@ build step to path A or B. The full recipe, secrets layout and licensing caveats
 - Meta XR Operator on Quest (Development builds): https://developers.meta.com/vr/documentation/unity/meta-xr-operator/quest/ (2026-09-10)
 - Package source read 2026-10-17: Core 207.0.1 `Editor/OVRManifestPreprocessor.cs`, `Editor/MetaXROperator/MetaXROperatorBuildProcessor.cs`; Unity OpenXR 1.18.0 / 1.19.0-pre.2 `Runtime/MetaQuest/MetaQuestFeature.cs`
 
-Last verified: 2026-10-17 (VR Glasses rows and APK checks; the `unzip` lines were run on a test
-archive, not a real APK); 2026-10-16 (the rest). `templates/QuestBuild.cs` and `templates/QuestPreflight.cs` compile
+Last verified: 2026-10-25 (the observed notes in path B and C and Step 4, from headless dev and
+release builds of a Unity 6000.6.6f1 + Core 207.0.1 game installed on a Quest 3S); 2026-10-17 (VR
+Glasses rows and APK checks; the `unzip` lines were run on a test archive, not a real APK);
+2026-10-16 (the rest). `templates/QuestBuild.cs` and `templates/QuestPreflight.cs` compile
 with 0 errors and 0 warnings against Unity 6000.6.6f1's managed DLLs, using Unity's bundled
 Roslyn; neither has been run in a project. The macOS SDK tool paths were checked on a 6000.6.6f1
 install. Not verified against a live CLI: whether `--android-*` flags apply on top of a `--profile`

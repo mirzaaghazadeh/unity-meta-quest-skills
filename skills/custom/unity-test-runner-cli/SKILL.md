@@ -5,8 +5,8 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.1"
-description: Sets up, runs and reads Unity Test Framework tests (EditMode and PlayMode) for a Unity or Meta Quest project from the command line. Covers test assembly (.asmdef) layout, `unity test` in batch and CI, `run_tests` against a live Editor, PlayMode runs on a Quest player, and summarizing NUnit3 or JUnit result XML with the bundled script. Use when asked to add or write unit tests, run tests headlessly or in CI, find out why tests fail, re-run failing tests, or summarize a test-results.xml.
+  version: "1.1.0"
+description: Sets up, runs and reads Unity Test Framework tests (EditMode and PlayMode) for a Unity or Meta Quest project from the command line. Covers test assembly (.asmdef) layout, `unity test` in batch and CI, `test run` (Pipeline 0.9; `run_tests` in 0.8) against a live Editor, PlayMode runs on a Quest player, and summarizing NUnit3 or JUnit result XML with the bundled script. Use when asked to add or write unit tests, run tests headlessly or in CI, find out why tests fail, re-run failing tests, or summarize a test-results.xml.
 ---
 
 # Unity tests from the CLI
@@ -25,8 +25,13 @@ grep -h '"com.unity.test-framework"' <project>/Packages/manifest.json <project>/
 ```
 
 Unity templates normally include it. If it's missing, ask the user, then add it. With a live
-Editor: `unity command package_add --project-path <project> -- --identifier com.unity.test-framework --confirm true`
-(then `unity command package_status`). Headless: see `unity-package-management`.
+Editor: `unity command package add --project-path <project> -- --identifier com.unity.test-framework --confirm true`
+(then `unity command package status`). Headless: see `unity-package-management`.
+
+Command names here are Pipeline 0.9's (`<group> <name>`). Pipeline 0.8 used single names:
+`package_add`, `package_status`, `set_autotick`, `list_tests`, `run_tests`, `test_status`,
+`cancel_tests`, `editor_status` (table in `skills/meta-official/ERRATA.md`). Check yours with
+`unity command --tag tests --project-path <project>`.
 
 ## Step 1: Test assemblies
 
@@ -45,7 +50,7 @@ unity recompile --project-path <project> --format json   # 0 ok, 6 compile error
 
 | Situation | Use | Why |
 |---|---|---|
-| Editor is open for this project | **Live:** `unity command run_tests` | Warm, about a second. A batch run can't open a project an Editor holds open |
+| Editor is open for this project | **Live:** `unity command test run` | Warm, about a second. A batch run can't open a project an Editor holds open |
 | No Editor, local or CI | **Batch:** `unity test` | Clean process, report file, exit codes CI can trust |
 | Need a real headset (XR subsystems, performance, input) | **Player:** `-testPlatform Android` | PlayMode tests built into a test player on the Quest |
 | Check a live XR session end to end (gaze and pinch, hands, UI clicks, screenshots) without writing test code | **`meta-xr-operator-unity`** (Meta XR Operator, experimental) | The agent drives the running app in the XR Simulator or a Development build. It complements tests; it doesn't produce NUnit results |
@@ -54,19 +59,34 @@ unity recompile --project-path <project> --format json   # 0 ok, 6 compile error
 
 ```bash
 unity status --project-path <project> --format json              # state "ready"
-unity command set_autotick --project-path <project> -- --enable true   # keeps an unfocused Editor ticking
-unity command list_tests  --project-path <project> -- --mode editor
-unity command run_tests   --project-path <project> -- --mode editor --filter ScoreTests
-unity command run_tests   --project-path <project> -- --mode playmode --async_tests true
-unity command test_status --project-path <project> --format json        # poll until finished
+unity command editor set_auto_tick --project-path <project> -- --enable true   # keeps an unfocused Editor ticking
+unity command test list   --project-path <project> -- --mode editor
+unity command test run    --project-path <project> -- --mode editor --filter ScoreTests
+unity command test run    --project-path <project> -- --mode playmode --async_tests true
+unity command test status --project-path <project> --format json        # poll until "status":"completed"
 ```
 
-- `mode`: `all` | `editor` | `playmode`. `filter_type`: `testName` (default, partial match),
-  `assembly`, `category`. `timeout` is in seconds (default 300). Use `cancel_tests` to abort.
-- Known caveat (Unity's `unity-pipeline` skill): when a selected test fails, `run_tests` may return
+- `mode`: `all` | `editor` | `playmode` (`EditMode` and `PlayMode` were also accepted in
+  0.9.1-exp.1). `filter_type`: `testName` (default, partial match), `assembly`, `category`.
+  `timeout` is in seconds (default 300). Use `test cancel` to abort.
+- Known caveat (Unity's `unity-pipeline` skill): when a selected test fails, `test run` may return
   an opaque result. Re-run with a narrower `--filter`, or fall back to a batch run for the report.
-- If the command hangs, check `unity command editor_status` for `blocked_by_dialog` and ask the user
+- An EditMode run longer than about 30 s outlives the CLI call's own timeout (`--timeout`,
+  default 30). Run it with `--async_tests true` too, and poll `test status` (observed 2026-10-24).
+- After editing scripts, compile first: `unity command script recompile`, then poll
+  `script recompile_status` until `completed` or `up_to_date`; `"compilationFailed":true` lists
+  the errors. Old CS errors stay in the console buffer after a fix, so trust this status.
+- If the command hangs, check `unity command editor status` for `blocked_by_dialog` and ask the user
   to dismiss the dialog.
+
+**PlayMode tests on an XR project (observed 2026-10-24, Meta XR Core 207.0.1, XR Simulator):**
+- The simulator can raise `OVRManager.InputFocusLost` at start. A correct focus pause
+  (VRC.Quest.Functional.2) then sets `timeScale` to 0 and every scaled-time test times out. Force
+  focus on in the test's setup (a test hook on your pause component).
+- With the Editor ticking in the background, frames aren't capped: a wait of N frames passes in
+  milliseconds. Wait in real seconds (`Time.unscaledDeltaTime`), not frames.
+- Mesh vertices of imported models that aren't Read/Write enabled can't be read in PlayMode. Do
+  geometry checks in EditMode: open the scene with `EditorSceneManager.OpenScene(path, OpenSceneMode.Additive)`.
 
 ### Batch (`unity test`)
 
@@ -149,11 +169,14 @@ each failure is a `<test-case fullname=… result="Failed">` with `<failure><mes
 - Unity CLI reference (exit codes 6/7/8, `test`): https://docs.unity.com/en-us/unity-cli/unity-cli-reference.md
 - Official `unity-cli` skill → `references/build-run-test.md` (`unity test` flags, reserved args, retries, sharding): https://github.com/Unity-Technologies/skills/tree/main/skills/unity-cli
 - Official `unity-pipeline` skill (`run_tests` caveat, `set_autotick`): https://github.com/Unity-Technologies/skills/tree/main/skills/unity-pipeline
-- Pipeline test commands: https://docs.unity3d.com/Packages/com.unity.pipeline@0.8/manual/commands/build-and-compilation.html
+- Pipeline test commands (0.8 names): https://docs.unity3d.com/Packages/com.unity.pipeline@0.8/manual/commands/build-and-compilation.html
+- Pipeline 0.9.1-exp.1 (`<group> <name>` commands): https://docs.unity3d.com/Packages/com.unity.pipeline@0.9/manual/index.html (read 2026-10-25)
 - Test Framework command-line reference (6000.3): https://docs.unity.com/en-us/engine/6000.3/manual/programming-environment/test-framework-introduction/reference-command-line.md
 - Run PlayMode tests in a Player: https://docs.unity.com/en-us/engine/6000.3/manual/programming-environment/test-framework-introduction/running-tests/workflow-run-playmode-test-standalone.md
 - NUnit result XML format: https://docs.nunit.org/articles/nunit/technical-notes/usage/Test-Result-XML-Format.html
 - Meta XR Operator overview: https://developers.meta.com/vr/documentation/unity/meta-xr-operator/ (2026-09-09)
 
-Last verified: 2026-10-17 (Operator row); 2026-10-16 (the rest). Not verified: `unity test --mode Android`, and on-device runs against a
+Last verified: 2026-10-25 (Pipeline 0.9 names and the live-Editor loop, run against
+Pipeline 0.9.1-exp.1 in a Unity 6000.6.6f1 project with 200+ EditMode and 20 PlayMode tests);
+2026-10-17 (Operator row); 2026-10-16 (the rest). Not verified: `unity test --mode Android`, and on-device runs against a
 real Quest. The summarizer was tested on sample NUnit3 and JUnit files only.

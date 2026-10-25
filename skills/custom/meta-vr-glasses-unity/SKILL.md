@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.0.1"
 description: >-
   Makes a Unity Meta Quest app ready for Meta VR Glasses (announced at Meta
   Connect 2026, ships spring 2027, same Horizon OS, Store and v207 SDKs): a
@@ -85,7 +85,7 @@ scan is similar to this script's; it also offers one-click setup fixes. For a de
 | Packages | `com.meta.xr.sdk.core`, `com.meta.xr.sdk.interaction`, `com.meta.xr.sdk.interaction.ovr`, 207.0.1 on Meta's registry (2026-10-12). Upgrade with `hz-unity-sdk-upgrade` |
 | Remove | `com.meta.xr.simulator` (deprecated; breaks compilation with Core 207), Oculus XR Plugin |
 | Binary | IL2CPP + ARM64 only. A Mono (32-bit-only) build cannot run on VR Glasses |
-| OVRManager > Quest Features > General | **Hand Tracking Support** (Step 0); **Eye Tracking Support** = Supported (keeps the ray fallback) or Required |
+| OVRManager > Quest Features > General | **Hand Tracking Support** (Step 0); **Eye Tracking Support** = Supported (keeps the ray fallback) or Required, **only once the app has gaze interaction**. Set alone, it puts `com.oculus.permission.EYE_TRACKING` in the manifest of an app that never reads gaze, and Quest 3/3S have no eye tracking: a Security.2 (fewest permissions) risk (observed 2026-10-25) |
 | Custom manifest | If `Assets/Plugins/Android/AndroidManifest.xml` exists, its hand-tracking entry wins. Use Window > Meta > Tools > Android Manifest Tool > **Update AndroidManifest.xml for Store Compatibility** |
 | Rendering | Dynamic resolution on (OVRCameraRig > OVRManager > Enable Dynamic Resolution, set min/max scale) |
 
@@ -95,10 +95,12 @@ To read or set the two tracking settings from code, copy
 check; not run in an Editor yet):
 
 ```bash
-unity command run_script --project-path <project> --file AgentScripts/VRGlassesSettings.cs --entry VRGlassesSettings.Report --format json
+unity command script run --project-path <project> --file AgentScripts/VRGlassesSettings.cs --entry VRGlassesSettings.Report --format json
 # after the user agrees, and only once hands work:
-unity command run_script --project-path <project> --file AgentScripts/VRGlassesSettings.cs --entry VRGlassesSettings.ApplyControllersAndHands --format json
+unity command script run --project-path <project> --file AgentScripts/VRGlassesSettings.cs --entry VRGlassesSettings.ApplyControllersAndHands --format json
 ```
+
+(`script run` is Pipeline 0.9's name; Pipeline 0.8 calls it `run_script`.)
 
 Commit the `OculusProjectConfig.asset` diff, then rebuild and check the APK (Step 7).
 

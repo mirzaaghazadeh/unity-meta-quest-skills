@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.1.0"
 description: >-
   Finds, downloads and licenses free art for a Quest game in Unity: CC0 models,
   characters, animations and textures from Kenney, Quaternius and Poly Haven,
@@ -106,6 +106,23 @@ bounds → **`hz-unity-placement`**. Texture and triangle budgets → **`quest-u
 
 List fonts (for example TextMesh Pro's Liberation Sans, SIL OFL 1.1) and SDKs separately.
 
+## Quaternius glTF people in Unity (observed 2026-10-24)
+
+From the Ultimate Modular Men and Women packs (glTF) through glTFast 6.20
+(`com.unity.cloud.gltfast`), Unity 6000.6.6f1, URP:
+- The Editor importer defaults to **Mecanim** and saves no AnimatorController. For simple puppets,
+  set `importSettings.animationMethod` to Legacy through a `SerializedObject` (the field is private)
+  and play the clips with the `Animation` component.
+- Swap glTFast's shader-graph materials for URP Lit to tint per material slot. glTFast's
+  `baseColorFactor` is already sRGB, so copy it unchanged.
+- `SkinnedMeshRenderer.BakeMesh(mesh, useScale: true)` doesn't apply a parent's scale. Measure (for
+  example an eye anchor) before scaling the body, or bake unscaled and use `TransformPoint`.
+- The models' rest pose isn't their bind pose: raw `sharedMesh.vertices` put the eyes 5 cm off the
+  rendered ones.
+- The Modular Men "Suit" model ships a pistol mesh and gun, sword and death clips. Trim them for a
+  non-violent game.
+- Their Google Drive downloads hit "Quota exceeded" after a few files, as above.
+
 ## Poly Haven texture maps for URP
 
 `polyhaven_fetch.py` downloads `Diffuse` and `nor_gl` by default. Unity uses OpenGL-style normal
@@ -122,5 +139,6 @@ normal pair is enough for most Quest surfaces.
 - OpenGameArt mirrors: https://opengameart.org/content/sci-fi-essentials-kit, https://opengameart.org/content/animated-lowpoly-robot
 - Quest budgets: `quest-unity-project-settings/references/performance-targets.md` (Meta device-optimization-comparison, 2026-05-11)
 
-Last verified: 2026-10-16. Downloads, license files and the Drive throttling were checked by
-running them in a real project; pack facts come from the pack pages on that date.
+Last verified: 2026-10-24 (the glTFast section, in a Unity 6000.6.6f1 project that also ran on a Quest 3S);
+2026-10-16 (the rest). Downloads, license files and the Drive throttling were checked by running
+them in a real project; pack facts come from the pack pages on that date.

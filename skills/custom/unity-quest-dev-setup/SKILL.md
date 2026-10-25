@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.2.0"
+  version: "1.3.0"
 description: Prepares a machine and a Unity project for Meta Quest and Meta VR Glasses development with the unity CLI. Checks or installs the CLI (with consent), installs a Unity 6 Editor (6000.0.66f2+ for Meta XR SDK v207) with Android Build Support, SDK/NDK and OpenJDK, signs in and activates a license, adds the com.unity.pipeline package so an agent can drive the Editor, opens the project and waits until it's ready, switches it to Android/Meta Quest, and covers the optional MCP setup (unity, metavr, Meta's AI Tools panel) with its known Claude Code issue. Use when setting up Unity for Quest on a new machine, when `unity` isn't found, when Android modules are missing, when `unity status` shows no Editor, when metavr tools don't load in Claude Code, or before Meta hz-unity-* skills that need a live Editor.
 ---
 
@@ -122,6 +122,14 @@ and `4` means a precondition such as a license is missing.
 - **New Meta VR project:** follow `hz-new-project-creation`, which creates and configures it.
   Then continue with Step 5. Meta's tool doesn't add the Pipeline package, but the `unity-cli`
   driven skills need it.
+  - Observed 2026-10-24 (metavr 1.8.0.17.10): `metavr_unity_setup` also has an `apply` action
+    that runs the whole setup headlessly and waits; the skills only describe `inject`.
+  - Its bootstrap project had **no URP pipeline asset**: GraphicsSettings and every quality level
+    were null, so the Built-in pipeline was active. Fix: copy `Mobile_RPAsset` and
+    `Mobile_Renderer` out of the Editor's `com.unity.template.urp-blank-*.tgz` and assign them
+    (`quest-unity-project-settings`). The tell is that settings audit reporting `quality.msaa`
+    instead of `urp.msaa`.
+  - It pinned OpenXR 1.16.1; Meta XR Operator needs 1.17 or later (`meta-xr-operator-unity`).
 - **New project, CLI only** (Meta's tool unavailable, and the user agrees):
   ```bash
   unity templates list --editor <6000.x.y> --type core --format json    # needs a concrete version
@@ -130,7 +138,7 @@ and `4` means a precondition such as a license is missing.
   ```
   Without `--no-cloud`, `projects create` links a Unity Cloud project and needs a signed-in user.
   Then add the Meta XR SDK following `hz-unity-meta-core-sdk/references/project-setup-workflow.md`
-  (it uses `unity command package_add`). Unity's `com.unity.template.vr` and `.mixed-reality`
+  (it uses `unity command package_add`, which Pipeline 0.9 calls `package add`). Unity's `com.unity.template.vr` and `.mixed-reality`
   templates also exist, but Meta's own flow starts from URP blank.
 - **Existing project:** check that `editorVersion` from `unity projects info` is installed (Step 2).
 
@@ -146,16 +154,24 @@ experimental package, resolved from the Unity registry, and serves only on 127.0
 `Packages/manifest.json` change.
 
 Meta's skills write helper scripts to `<project>/AgentScripts/` (outside `Assets/`, so no reimport)
-and run them with `unity command run_script`. Ask the user whether to commit that folder or add it to
-`.gitignore`.
+and run them with `unity command run_script` (`script run` in Pipeline 0.9). Ask the user whether
+to commit that folder or add it to `.gitignore`.
+
+**Command names depend on the Pipeline version.** Pipeline 0.9 (0.9.1-exp.1) names commands
+`<group> <name>`: `script run`, `script eval`, `editor status`, `editor set_auto_tick`,
+`build list_profiles`, `build.target switch`, `package add`. Pipeline 0.8 and Meta's and Unity's
+skills use the older single names (`run_script`, `editor_status`, `set_autotick`,
+`list_build_profiles`, `switch_build_target`, `package_add`). Check with `unity command --tag
+<group> --project-path <project>`; the full table is in `skills/meta-official/ERRATA.md`. This
+skill uses the 0.9 names.
 
 ## Step 6: Open, wait for ready, keep it ticking
 
 ```bash
 cd <project> && unity open .
 unity status --until-ready --project-path <project> --format json     # exit 6 on timeout; read errors[0].code
-unity command set_autotick --project-path <project> -- --enable true   # stop an unfocused Editor stalling
-unity command editor_status --project-path <project> --format json
+unity command editor set_auto_tick --project-path <project> -- --enable true   # stop an unfocused Editor stalling
+unity command editor status --project-path <project> --format json
 ```
 
 If it isn't ready, rule these out in order:
@@ -166,7 +182,8 @@ If it isn't ready, rule these out in order:
 | `STATUS_PIPELINE_LOAD_PENDING` | Package in manifest, not loaded yet | Ask the user to click into the Unity window, then wait again |
 | No instances, and `unity pipeline list` shows Safe Mode | Compile errors | Read `<project>/Logs/Editor.log` through `grep -E 'error CS[0-9]{4}'`, fix the code, restart Unity (see `unity-cli`) |
 | No instances, but the user says the Editor is open | The agent's sandbox may block the loopback connection or the discovery file | Say so plainly. Ask the user to allow 127.0.0.1 for this command or run it outside the sandbox. Never disable the sandbox, and don't silently fall back to editing files |
-| `editor_status` shows `blocked_by_dialog` | A modal dialog | Ask the user to dismiss it. The CLI can't click it |
+| `editor status` shows `blocked_by_dialog` | A modal dialog | Ask the user to dismiss it. The CLI can't click it |
+| Calls time out, `editor status` too | A modal dialog the Pipeline can't see (observed 2026-10-25: a build decision dialog) | `sample <Unity pid>` on macOS shows `NSAlert runModal`. Ask the user, or close the Editor and work headless (`unity-quest-android-build`) |
 
 ## Step 7: Platform: Android / Meta Quest
 
@@ -174,15 +191,16 @@ Meta's setup script switches the platform itself (Meta Quest on 6.1+, Android be
 and switch only when the user agrees, because it re-imports the whole project:
 
 ```bash
-unity command get_build_settings  --project-path <project> --format json   # activeBuildTarget
-unity command list_build_profiles --project-path <project> --format json   # a Meta Quest profile?
-unity command switch_build_target --project-path <project> -- --target Android --confirm true
-unity command switch_build_target_status --project-path <project> --format json   # poll until completed
+unity command build get_settings  --project-path <project> --format json   # activeBuildTarget
+unity command build list_profiles --project-path <project> --format json   # a Meta Quest profile?
+unity command build.target switch --project-path <project> -- --target Android --confirm true
+unity command build.target switch_status --project-path <project> --format json   # poll until completed
 ```
 
 To create a **Meta Quest build profile**, the documented route is the Editor UI: File > Build
-Profiles > Add Build Profile > Meta Quest. A CLI route isn't documented, so ask the user to do it
-or use Meta's setup script. Unity installs the OpenXR Plugin automatically when you pick the Meta
+Profiles > Add Build Profile > Meta Quest. Pipeline 0.9 also lists `build create_profile`, which
+created one without the UI in a 2026-10-24 project (unverified beyond that); otherwise ask the
+user or use Meta's setup script. Unity installs the OpenXR Plugin automatically when you pick the Meta
 Quest platform.
 
 ## Step 8 (optional): MCP instead of shell commands
@@ -235,7 +253,8 @@ Report: CLI version, Editor version, Android modules ok, license ok, Pipeline in
 - Pipeline package install: https://docs.unity.com/en-us/unity-cli/unity-pipeline/unity-pipeline-package.md
 - Replace MCP Server with Unity CLI: https://docs.unity.com/en-us/unity-cli/replace-mcp-server-unity-cli.md
 - Official `unity-cli` skill (status codes, Safe Mode, sandbox guidance, `--with-pipeline`): https://github.com/Unity-Technologies/skills/tree/main/skills/unity-cli
-- Pipeline commands (`switch_build_target`, `list_build_profiles`, `set_autotick`): https://docs.unity3d.com/Packages/com.unity.pipeline@0.8/manual/index.html
+- Pipeline commands, 0.8 names (`switch_build_target`, `list_build_profiles`, `set_autotick`): https://docs.unity3d.com/Packages/com.unity.pipeline@0.8/manual/index.html
+- Pipeline 0.9.1-exp.1 commands (`<group> <name>`: `script run`, `editor status`, `build.target switch`, `package add`): https://docs.unity3d.com/Packages/com.unity.pipeline@0.9/manual/index.html (read 2026-10-25)
 - Meta Quest build profile: https://docs.unity3d.com/6000.3/Documentation/Manual/xr-meta-quest-build-profile.html
 - Meta skills `hz-new-project-creation`, `hz-unity-meta-core-sdk` (meta-quest/agentic-tools @ 3a8553d)
 - Meta XR All-in-One SDK 207.0: https://developers.meta.com/vr/downloads/package/meta-xr-sdk-all-in-one-upm/ (2026-09-22)
@@ -243,6 +262,7 @@ Report: CLI version, Editor version, Android modules ok, license ok, Pipeline in
 - Meta XR Operator getting started: https://developers.meta.com/vr/documentation/unity/meta-xr-operator/getting-started/ (2026-09-09)
 - Core SDK 207.0.1 source read 2026-10-17: `package.json`, `Editor/AgentBridge/ClaudeCodeService.cs`, `Editor/MetaXROperator/MetaXROperatorProvider.cs`
 
-Last verified: 2026-10-17. The `unity` CLI steps were not run against a live CLI. Confirm flags
-with `unity <command> --help` on first use. The batch-mode traps reference was observed in a real
-Unity 6000.6.6f1 + Meta XR Core SDK 207.0.1 project on macOS.
+Last verified: 2026-10-25 (the Pipeline 0.9 command names, Steps 6-7, against a live unity CLI
+1.0.0-beta.13 and Pipeline 0.9.1-exp.1 in a Unity 6000.6.6f1 project); 2026-10-17 (the rest).
+Confirm flags with `unity <command> --help` on first use. The batch-mode traps reference was
+observed in a real Unity 6000.6.6f1 + Meta XR Core SDK 207.0.1 project on macOS.

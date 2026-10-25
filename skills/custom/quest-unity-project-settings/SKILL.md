@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.2.0"
+  version: "1.2.1"
 description: >-
   Recommended Unity settings for Meta Quest performance and Horizon Store
   compatibility, each checked against Meta's docs: Unity version floor for Meta
@@ -126,7 +126,7 @@ validation for Android 0 errors, 0 warnings.
 | Development Build | Off for release builds | Store | unity-conf-settings (2025-02-18) |
 | Target devices | Only headsets you have tested. This sets `com.oculus.supportedDevices`. VR Glasses: see the box in §1 | Meta-rec | unity-openxr-settings-quest; unity-conf-settings |
 | Hand Tracking Support (OVRManager > Quest Features > General) | **Controllers And Hands** once every required flow works with hands (writes `oculus.software.handtracking` required=false + `HAND_TRACKING`); Hands Only → required=true. Controllers Only on VR Glasses means the Switch to Controllers dialog for users without controllers | Meta-rec (VR Glasses reach) | unity-support-meta-vr-glasses (2026-09-30); app-compatibility (2026-10-13) |
-| Eye Tracking Support (same panel) | **Supported** if you use gaze (keeps ray fallback); Required only if the app can't run without it. Adds `com.oculus.permission.EYE_TRACKING` | Meta-rec (if gaze/ETFR) | unity-support-meta-vr-glasses |
+| Eye Tracking Support (same panel) | **Supported** if you use gaze (keeps ray fallback); Required only if the app can't run without it. Adds `com.oculus.permission.EYE_TRACKING`. **None** if nothing reads gaze: an unused permission is a Security.2 risk, and Quest 3/3S have no eye tracking (observed 2026-10-25) | Meta-rec (if gaze/ETFR) | unity-support-meta-vr-glasses |
 | Custom `Assets/Plugins/Android/AndroidManifest.xml` | Its hand-tracking entry is kept, not updated. Window > Meta > Tools > Android Manifest Tool > Update AndroidManifest.xml for Store Compatibility | Store (input declaration) | unity-support-meta-vr-glasses |
 | Experimental Features Enabled (OVRManager > Quest Features > Experimental) | **Off** for release builds. It marks the build experimental (`com.oculus.experimental.enabled`); the Unity FoV simulation toggle and on-device Meta XR Operator need it on | Store | in-headset-fov-simulation (2026-09-24); meta-xr-operator/quest (2026-09-10) |
 | System splash screen | A custom splash for published apps (OVRManager > Quest Features > General) | Meta-rec | unity-openxr-settings-quest; unity-splash-screen |
@@ -270,4 +270,4 @@ and the other VR Glasses items, run `meta-vr-glasses-unity/scripts/vrglasses_rea
 
 `/horizon/` documentation URLs now 302-redirect to the same path under `/vr/`.
 
-Last verified: 2026-10-17
+Last verified: 2026-10-25 (the Eye Tracking Support row, observed in a release APK); 2026-10-17 (the rest)
