@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.2.0"
+  version: "1.3.0"
 description: >-
   Prepare and validate a Meta Horizon Store product listing for a Quest game:
   exact art specs (covers, Hero, Logo, Icon, Spatialized tile, screenshots,
@@ -71,6 +71,17 @@ Global rules:
   preview** ("Use image") that shows whether the title stays clear of the cropped edges. Required
   there: the three covers, the hero, the icon and 5 screenshots; logo, spatialized tile, trailer
   and 360° preview are optional.
+- **Uploading assets by browser automation** (Claude in Chrome, 2026-10-25):
+  - The form has no `<input type=file>` until "choose file on your device" is clicked, and the
+    click opens a native picker an agent can't use. Patch `HTMLInputElement.prototype.click` so a
+    file input stays in the page (appended, hidden, labelled) instead, then attach with
+    `file_upload`.
+  - The first attach to a fresh input sometimes didn't register. Clicking the same link again and
+    attaching again worked. The cover then opens its Safe area preview: click **Use image**.
+  - `file_upload` takes at most 10 MB per call. Five 2560 × 1440 screenshots (about 3 MB each) go
+    in two calls, 3 and 2, and the list appends.
+  - The list showed them in a different order from the upload (3, 1, 2, 4, 5). A synthetic drag on
+    the row handles didn't reorder them; reorder by hand if the order matters.
 - Each extra store language needs its own localized assets.
 - Test cover art before a launch or a sale with the Dashboard's **creative A/B test** on the
   product page (ab-testing-instructions, 2024-12-16).
@@ -96,6 +107,20 @@ ImageMagick, plus `ffprobe`. File names it expects: `cover_landscape.png`, `cove
 - Hide debug HUDs, FPS counters and dev overlays. Use the game's own UI only. If the build has
   the experimental **Simulate Device Field of View** mask on, turn it off first.
 - Pick moments that match the store description (Content.2: metadata must match the app).
+- **When nobody can wear the headset** (observed 2026-10-25), stage the moments in Editor Play
+  mode and render them yourself. That's real game content from the same scene, not a mockup:
+  - render a temporary `Camera` at the player's seat into a 2560 × 1440 `RenderTexture`
+    (`antiAliasing = 8`), `ReadPixels` into an RGB24 `Texture2D` and `EncodeToPNG`, all in one
+    `unity command script eval`;
+  - RGB24 gives a 24-bit PNG with no alpha, and the result passes `check-store-assets.sh`;
+  - labels that turn to face the player face `OVRCameraRig.centerEyeAnchor`, so move that to the
+    shot's pose first;
+  - a developer who compared the renders with the headset view found them to match. Meta's review
+    outcome for them isn't known yet: replace them with headset captures when you can.
+- **Covers from a render plus the title** with ImageMagick: after a `-compose multiply` vignette,
+  set `-compose over` again before compositing the logo. The compose setting persists into the
+  logo's `-layers merge` and darkens it. End with `-alpha off -define png:color-type=2` for a
+  24-bit file.
 
 ## 2. Metadata (App Metadata page, updated 2025-08-20)
 
@@ -105,8 +130,8 @@ ImageMagick, plus `ffprobe`. File names it expects: `cover_landscape.png`, `cove
 | Short description | **max 500 characters** (Publishing.5) |
 | Long description | **max 1500 characters** (Publishing.6) |
 | Search keywords | optional, **up to 5**; relevant only (Publishing.7). The field picks from suggestions and rejected a keyword with a space ("hand tracking") on 2026-10-24 |
-| Categorization | Category + a **required primary genre** + up to 2 more, plus optional Gameplay mechanics. Game genres offered (2026-10-24): Action, Adventure, Education, Hangout, Narrative, Party game, Puzzle, Rhythm, Role playing, Sandbox, Simulation, Sports. No Casual or Arcade genre: use keywords for those |
-| Specs | Game Modes, Supported Controllers, Play Area, Supported Player Modes, Comfort Level, Internet Connection, Subscription, Purchase-blocked devices, Social Features, Supported Languages in App, Early Access. The Dashboard pre-fills some answers from the uploaded build (Internet Connection, for one); check each against the real game |
+| Categorization | Category (Apps or Games) + a **required primary genre** + up to 2 more. Optional for Games (2026-10-25): Art style and Game theme (up to 3 each), Gameplay challenge, Gameplay mechanics. Game genres offered (2026-10-24): Action, Adventure, Education, Hangout, Narrative, Party game, Puzzle, Rhythm, Role playing, Sandbox, Simulation, Sports. No Casual or Arcade genre: use keywords for those |
+| Specs | Game Modes, Supported Controllers, Play Area, Supported Player Modes, Comfort Level, Internet Connection, Subscription, Purchase-blocked devices, Social Features, Supported Languages in App, Early Access. The Dashboard pre-fills some answers from the uploaded build (Internet Connection, for one); check each against the real game. The options are in the Specs list below the table |
 | Details | Developer and Publisher (64 characters each; Developer defaults to the team name until "Use team name" is unticked), Website (Publishing.1, must resolve), Privacy Policy (Privacy.1-4), optional External Support (Publishing.2) and Terms of Service (Publishing.3) |
 | Content rating | Developer contact email (shared with IARC) + IARC certificate |
 
@@ -115,6 +140,28 @@ Categorization > Specs > Details > Assets > Content Rating, saving each step. A 
 four tabs, **Submission**, **Pricing**, **Build** and **App metadata** (2026-10-24). **Metadata
 preview** (Start preview) shows the product page in the Store, the phone app and the headset for
 an hour, visible only to you.
+
+**Specs: what each field offers** (observed 2026-10-25, a paid Unity APK):
+
+| Field | Options and behaviour |
+|---|---|
+| Early Access | Enable or Disable. It can be added only in the first submission, and removed later |
+| Player modes | Multi-select: Asynchronous multiplayer, Co-op, Local multiplayer, Massively multiplayer, Multiplayer, PvE, PvP, Single player |
+| Supported input | Auto-filled from the binary ("Touch controller and Hands" for `handtracking required="false"`) |
+| Play area | **Movement** or **No Movement**. The older Stationary/Roomscale wording is gone from this field |
+| Supported physical modes | Sitting, Standing, Roomscale (multi-select) |
+| Comfort level | Comfortable, Comfort: Moderate, Comfort: Intense |
+| Internet connection | Auto-filled **"required" from the `INTERNET` permission alone** (Unity adds it by default), but editable. Choose "not required" only if the game really works offline, and check an offline launch, including any entitlement check |
+| Subscription | Not required, Required for some content, Required |
+| Purchase-blocked devices | Preselected: Quest (the first one). Offers Quest 2, Quest Pro, Quest 3 family. Blocking a device that the production build targets shows a warning; fix the build's Supported devices too (`horizon-store-publish-unity`) |
+| Social features | Yes or No |
+
+**Pricing tab** (2026-10-25):
+- **Listing type:** Coming soon, Pre-order or Full release. It can't be changed after submission.
+  Full release says "Prices are locked on approval and cannot be changed for 30 days".
+- **Price type:** Free app or Paid app, then a USD price list.
+- A table shows each region's default price for the tier, with a per-country custom price. For
+  example $5.99 came out as A$8.99, CA$7.99 and €4.99 for the EU.
 
 Copywriting checklist:
 - The first sentence of the short description says what the player does, in VR terms ("Climb...",
@@ -163,6 +210,37 @@ In the Dashboard (observed 2026-10-24):
   as you answer (for example Digital Purchases > "Purchases of digital goods" > random items?
   trading?). The tab ends on "IARC Certificate Created". A game with one durable unlock and no
   violence came back as ESRB Everyone and PEGI 3, with the "In-Game Purchases" notice.
+- **The IARC questions for a Game** (hosted at web.iarcservices.com, 2026-10-25). The first page
+  asks the app type; the second asks, each Yes or No:
+  - violence, blood or gore;
+  - fear;
+  - sexuality, suggestiveness or dating;
+  - gambling;
+  - offensive language;
+  - drugs, alcohol or tobacco;
+  - crude humour;
+  - digital purchases, cash rewards or NFTs;
+  - users interacting or exchanging content;
+  - sharing precise location;
+  - Nazi symbols;
+  - content eroding Korean national identity;
+  - advocating terrorism;
+  - "realistic descriptions of crimes … or techniques that can be used in criminal offenses".
+
+  A Yes to the crime question adds two more: likely to be imitated by youths, and detailed
+  techniques. The last page shows every rating and needs a box ticked: "I hereby agree to the IARC
+  Terms of Use and I agree that I am the age of majority". That's the user's agreement.
+- **Crime themes move the regional ratings a lot.** A non-violent game in which applicants offer
+  bribes and the player can keep them (crime Yes, both follow-ups No) came back as:
+  - ESRB Everyone, PEGI 3, USK Everyone, ClassInd All ages, Generic 3+;
+  - ACB **Mature** (Mature Themes), GRAC **15+** (Crime), DGSC **PG15** (Anti-society), Russia
+    **16+** (descriptor "Violence").
+
+  Expect this for any game where the player can commit or depict an offence (bribery, fraud,
+  smuggling), even with no violence.
+- After the user does the age group on the Build tab, it reads "Teens and adults (13+ or
+  applicable age in user's region)". Each app has its own age group, IARC certificate and
+  sharing preferences: check the app name at the top left before starting.
 - **Sharing preferences:** the Submission tab shows "Please confirm your app sharing preferences
   before submitting". Those settings cover players streaming and capturing the app, under Meta's
   Sharing Terms, which the user accepts or declines.
@@ -275,4 +353,5 @@ All pages moved from `developers.meta.com/horizon/` to `/vr/` (the old links red
 - https://developers.meta.com/vr/blog/smarter-pricing-better-trials-deeper-analytics-for-VR-developers/ (2026-08-11); https://developers.meta.com/blog/meta-connect-recap-start-building-the-future-of-vr/ (2026-09-24)
 - Meta Developer Dashboard, observed while listing a Quest app with a durable add-on (2026-10-24): Assets form, App metadata forms, Build and Submission tabs, IARC questionnaire, Monetization > Add-ons, Data Use Checkup
 
-Last verified: 2026-10-24
+Last verified: 2026-10-25 (Specs, Pricing and IARC in the Dashboard while submitting a paid Unity
+app)

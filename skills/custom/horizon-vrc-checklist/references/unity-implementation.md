@@ -103,9 +103,23 @@ Common misses:
 
 - The user recenters from the system UI. Don't fight it: re-anchor menus and world-space UI
   after a recenter.
-- **verify**: `OVRManager.display.RecenteredPose` (an event on `OVRDisplay`) has been reported to
-  fire on Quest recenter. Confirm with `metavr docs api-details OVRDisplay` before relying on it.
-  Polling the camera rig's forward vector each frame is a fallback.
+- `OVRManager.display.RecenteredPose` (an event on `OVRDisplay`) fires on a Quest system
+  recenter.
+  - Observed on a Quest 3S with Core SDK 207 (2026-10-25): logcat says "Recenter event
+    detected".
+  - It fired 3-4 times in the first minute after a cold launch, at HMD mount and alongside
+    `[MetaXRFeature] OnAppSpaceChange`, not only when the user held the Meta button.
+- **Read the head a frame later, not in the handler.**
+  - In `OVRDisplay.Update` (core SDK 207, `Scripts/OVRDisplay.cs`), a system recenter is detected
+    through `OVRPlugin.GetLocalTrackingSpaceRecenterCount()`, and the event is raised at once,
+    from inside `OVRManager.Update`. The camera rig's anchors may still hold last frame's pose
+    then. Only the app-initiated `RecenterPose()` path waits a frame, as its own comment explains.
+  - A seated game that refits the player in the handler, e.g. `rig.position -= head.position`
+    for x and z, used the stale pose. It moved the player by their old offset from the tracking
+    centre, into the desk, with the papers under their nose.
+  - Run the refit from a coroutine one or two frames later. *Unverified on device:* the fix is
+    built, but nobody has played with it yet.
+- Polling the camera rig's forward vector each frame is a fallback.
 - `OVRManager.AllowRecenter` is documented as applying to PC VR.
 
 ## Controller and hands switching (Input.7) and modality-complete play (Tracking.2)

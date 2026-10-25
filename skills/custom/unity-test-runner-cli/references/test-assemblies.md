@@ -139,8 +139,9 @@ argument, forwarded after `--` (it isn't one of `unity test`'s reserved flags):
 - In Editor PlayMode there is no headset. For interaction flows, use Meta's XR Simulator
   (`hz-xr-simulator-install-and-configure`, `hz-xr-simulator-control`) or mock your input layer
   behind an interface.
-- Frame-dependent tests in an **unfocused** Editor can stall. Before `run_tests --mode playmode`,
-  run `unity command set_autotick --enable true` (see the `unity-pipeline` skill).
+- Frame-dependent tests in an **unfocused** Editor can stall. Before `test run --mode playmode`,
+  run `unity command editor set_auto_tick --enable true` (Pipeline 0.8: `run_tests`,
+  `set_autotick`; see the `unity-pipeline` skill).
 
 Sources: Unity Manual 6000.3 Test Framework pages,
 https://docs.unity.com/en-us/engine/6000.3/manual/programming-environment/test-framework-introduction/getting-started/edit-mode-vs-play-mode-tests.md

@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.2.0"
+  version: "1.3.0"
 description: >-
   Ship a Unity Meta Quest game build to the Meta Horizon Store: one-time
   Developer Dashboard setup (org verification, app record, App ID and
@@ -90,6 +90,8 @@ Set these in the project, or let `scripts/QuestReleaseBuild.cs` enforce them at 
 | Build App Bundle (AAB) | Off | Store takes an APK under 1 GB plus OBB files under 4 GB (VRC.Quest.Packaging.5) |
 | Split Application Binary | On only if the APK would exceed 1 GB | Produces `main.obb`. Upload it with `--obb` |
 | Keystore | Custom release keystore | VRC.Quest.Packaging.2 requires APK Signature Scheme v2. Debug-signed builds are not release builds |
+| `Assets/Resources/DevAgentSettings.asset` | **Not in the build** | Meta's Immersive Debugger keeps its AI assistant's `accessToken` and LAN server address there, and Unity packs everything in `Resources/`, git-ignored or not (observed 2026-10-25, Core 207.0.1). Move it out of `Assets/` for the release build and back afterwards; `unity-quest-android-build` path B has the pattern |
+| Eye Tracking Support | None unless the app reads gaze | It adds `com.oculus.permission.EYE_TRACKING`; unused, it's a Security.2 risk (`quest-unity-project-settings`) |
 
 The Meta XR Core SDK writes the Quest manifest entries: `com.oculus.intent.category.VR`
 (required for OpenXR apps), `android.hardware.vr.headtracking` (`required="true"` for
@@ -135,6 +137,29 @@ Secrets go in the environment (CI secret store, or a local untracked `.env`):
 `QUEST_KEYSTORE_PATH`, `QUEST_KEYSTORE_PASS`, `QUEST_KEY_ALIAS`, `QUEST_KEY_ALIAS_PASS`.
 Non-secret inputs: `QUEST_VERSION_CODE`, `QUEST_VERSION_NAME` (optional), and
 `QUEST_SPLIT_OBB=1` (optional).
+
+**Creating the key and wiring it in** (ask the user first; observed 2026-10-25, Unity 6000.6.6f1):
+- Unity bundles a JDK, so no install is needed:
+  `<Editor>/PlaybackEngines/AndroidPlayer/OpenJDK/bin/keytool -genkeypair -storetype PKCS12
+  -keyalg RSA -keysize 4096 -validity 10950 ...`.
+- A pattern that keeps the password off command lines:
+  - keep the keystore and a `password.txt` (mode 600) in a folder outside the repo, plus a
+    README telling the user to back the folder up twice;
+  - have the build method read the password from that file;
+  - set `PlayerSettings.Android.useCustomKeystore`, `keystoreName`, `keystorePass`,
+    `keyaliasName` and `keyaliasPass` only for the build, and clear them in a `finally`.
+- Clearing `keystoreName` to "" still leaves `AndroidKeystoreName: '{inproject}: '` in
+  `ProjectSettings.asset`. Restore that file from git after the build.
+- `verify-quest-apk.sh` then reports the release certificate's subject (PASS) instead of the
+  debug key.
+
+**The App ID for the entitlement check**, set headlessly once the Dashboard app exists:
+`unity command script eval` with
+`Oculus.Platform.PlatformSettings.MobileAppID = "<id>"; UnityEditor.EditorUtility.SetDirty(
+UnityEngine.Resources.Load<Oculus.Platform.PlatformSettings>("OculusPlatformSettings"));
+UnityEditor.AssetDatabase.SaveAssets();`. It's the `ovrMobileAppID` field of
+`Assets/Resources/OculusPlatformSettings.asset`. Builds made before it skip any check that is
+gated on an App ID, so rebuild the release APK after setting it.
 
 **Option A: Unity CLI with the execute method (recommended).** The flags come from the
 `unity-cli` skill, `references/build-run-test.md`.
@@ -183,7 +208,9 @@ package/versionCode/versionName, minSdk and targetSdk ranges, compileSdk >= targ
 arm64-v8a-only native code, debuggable flag, v2 signature and a non-debug certificate,
 VR category, headtracking, supportedDevices, installLocation, excludeFromRecents, the
 declared input (controllers, hands or both), `com.meta.store.defaultDeviceTargets` if set, the
-1 GB APK limit, prohibited permissions (FAIL) and review-required permissions (WARN).
+1 GB APK limit, prohibited permissions (FAIL) and review-required permissions (WARN). It reads
+minSdk from either `minSdkVersion:` (aapt2) or `sdkVersion:` (the old aapt); before 2026-10-25 it
+read only the second, so aapt2 runs reported a false `minSdkVersion ''` FAIL.
 
 Then smoke-test on a headset with the Meta CLI (see `metavr-cli`):
 
@@ -233,6 +260,17 @@ Alternatives:
   uploads a draft unless `--publish` is passed. It has no age-group, device-target, asset-file or
   symbol options (metavr 1.8.0.17.10), so prefer ovr-platform-util for release builds. Meta's
   `hz-store-submit` says to fall back to the Dashboard if it errors.
+  - It needs a signed-in Meta account. Without one it stops with "not signed in — run `metavr
+    auth login` first". The login is a device code, or `--browser` for browser SSO, and `metavr
+    init` offers it too. It's the user's account, so let them run it (`! metavr auth login`).
+  - Observed 2026-10-25: `--channel LIVE` sent a 97 MB Unity APK as a **LIVE draft** in about
+    3.5 minutes. It printed a Build ID and a test-results URL, plus a warning that age group
+    self-certification is required before publishing. That draft attached to the first
+    submission normally.
+  - `metavr store dist channels --app-id <id>` lists the four channels and their latest builds.
+- **Browser upload of a Unity APK doesn't work with Claude in Chrome:** its `file_upload` takes
+  at most 10 MB per call, and a Unity APK is usually around 100 MB. Use metavr or
+  ovr-platform-util. Small TWA APKs from Bubblewrap fit.
 - Unity Editor: **Window > Meta > Tools > Oculus Platform Tool** uploads an existing APK and does
   not build it.
 - Meta Quest Developer Hub, or the Dashboard upload page.
@@ -252,6 +290,14 @@ Alternatives:
 
   The dialog warns "Age group self-certification is required before publishing a binary"; the
   upload itself works without it.
+- After an upload, the build's **Test results** tab shows a Basic malware test and a Security
+  Vulnerability Review, which passed within minutes (2026-10-25). Its VRC tab stays empty until
+  the build is submitted and reviewed.
+- On the submission's **Build** tab (first submission):
+  - "Use Live binary" is disabled, with the tooltip "You cannot use a live binary on your first
+    app submission";
+  - for a paid app the ads question is locked ("This app cannot contain ads based on our
+    Advertising Policy").
 - **Browser automation:** the APK file input is created only when the button is clicked, which
   opens a native dialog an agent can't use. Patching `HTMLInputElement.prototype.click` keeps the
   input on the page so a file can be attached. Files attached by automation can arrive as
@@ -271,6 +317,18 @@ reach which device is set per build (target-builds-by-device, 2026-09-04; app-co
 | Dashboard | Build > **Supported Devices**: Quest 2, Pro, 3, 3S and **Future devices**. Select Future devices plus every Quest that should get the build. That marks it forward-compatible, and after VR Glasses ship an approved Production build reaches them with no new APK |
 | Upload | `QUEST_DEVICE_TARGETS="quest3+" scripts/upload-quest-build.sh app.apk alpha` sends `--channel "alpha:quest3+"`. Specifiers: `quest2only`, `questproonly`, `quest3only`, `quest2+`, `questpro+`, `quest3+`, `questpro-`, joined with `\|`. `quest3+` covers the Quest 3 family, VR Glasses and future devices. CLI values override the manifest |
 | Manifest | Optional `<meta-data android:name="com.meta.store.defaultDeviceTargets" android:value="quest3+"/>` presets Supported Devices at upload. Use it only to restrict a build on purpose |
+
+**The manifest's device list doesn't set Store targeting** (observed 2026-10-25):
+- A build whose `com.oculus.supportedDevices` was `quest3|quest3s` came in through `metavr store
+  dist upload` with **Supported devices: Quest 2, Quest Pro, Quest 3 family, Future devices**.
+- Narrow it on Builds > the build > Details > Supported devices (Quest 3 family + Future devices),
+  then Save. It saves on a draft.
+- Also set Purchase-blocked devices in the listing's Specs, or Quest 2 and Pro owners can buy a
+  game that won't run for them.
+- The same page lists the merged permissions and "Blocked Quest devices: Oculus Quest".
+- *Unverified:* it showed `ACCESS_LOCAL_NETWORK` and `USE_LOOPBACK_INTERFACE` on a build where
+  `verify-quest-apk.sh` printed only three permissions. Check the Dashboard's list as well when
+  auditing Security.2.
 
 Rules: a build must support at least one device; LIVE must always keep one build with Future
 devices; every build in an app submission must be forward-compatible; a build with no targeting
@@ -360,5 +418,6 @@ final URLs.
 - https://developers.meta.com/vr/resources/publish-submit/ (updated 2026-05-08)
 - Meta `metavr-cli` docs (`metavr store dist`, `metavr tools`; `docs/metavr-cli-reference.md`, metavr 1.8.0.17.10) and Unity `unity-cli` skill (`unity build`)
 - Meta Developer Dashboard, observed while submitting a Quest app (2026-10-24): build upload dialog, the submission's Build and Submission tabs
+- A Unity 6000.6.6f1 + Core 207.0.1 release APK checked with `verify-quest-apk.sh` and `aapt2 dump badging` (2026-10-25): the minSdk parsing fix, `DevAgentSettings` and the eye-tracking permission
 
-Last verified: 2026-10-24
+Last verified: 2026-10-25

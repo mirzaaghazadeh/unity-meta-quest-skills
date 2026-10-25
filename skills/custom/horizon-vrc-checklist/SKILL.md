@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.1.0"
+  version: "1.2.0"
 description: >-
   Pre-submission audit of a Unity Meta Quest game against Meta's current
   Virtual Reality Checks (VRCs) for the Horizon Store, by VRC ID
@@ -152,4 +152,5 @@ Pages moved from `developers.meta.com/horizon/` to `/vr/` (old links redirect).
 - https://developers.meta.com/vr/essentials/app-compatibility/ (2026-10-13), /test-your-app/ (2026-09-25), /field-of-view/ (2026-09-25)
 - https://developers.meta.com/vr/resources/publish-release-channels-device-targeting/ (2026-09-04)
 
-Last verified: 2026-10-17
+Last verified: 2026-10-17 (the recenter timing in references/unity-implementation.md: observed on a
+Quest 3S and in the core SDK 207 source, 2026-10-25)

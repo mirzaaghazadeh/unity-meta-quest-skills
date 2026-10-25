@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.1.0"
+  version: "1.2.0"
 description: >-
   Blocks out a Quest level from a data file and reviews it without a headset:
   every layout value in one JSON file, a validator that measures jump gaps,
@@ -60,7 +60,7 @@ Hand-offs:
    roof they sit on, enemies standing on a walkable surface, counts. **Throw on any error** so a
    bad file never produces a scene.
 4. **Generate** with an Editor script that has a menu item (`Tools > Build Test Scene`) and a static
-   entry for batch mode or `unity command run_script`:
+   entry for batch mode or `unity command script run` (`run_script` in Pipeline 0.8):
    - Start from `EditorSceneManager.NewScene(NewSceneSetup.EmptyScene)`, and delete and recreate a
      `Generated/` folder for materials and meshes.
    - Visual boxes from `BlockoutMesh.Box(name, center, size, 0.25f)` with a grid material from
@@ -108,6 +108,27 @@ unity command screenshot --project-path . -- --view game --output "$PWD/Screensh
 unity command editor_stop --project-path .
 ```
 
+With **Pipeline 0.9** (0.9.1-exp.1, observed 2026-10-24 and 25 in a Unity 6000.6.6f1 project):
+
+```bash
+unity command editor invoke_menu --project-path . -- --path "Window/Meta/Meta XR Simulator/Activate"
+unity command editor.playmode set_run_in_background --project-path . -- --enable true   # first, or the session sticks
+unity command editor.playmode start --project-path .
+unity command capture game_view --project-path . -- --camera CenterEyeAnchor --source camera
+unity command editor.playmode stop --project-path .
+```
+
+- **Run in background first.** Without it an unfocused Editor doesn't tick: the OpenXR session
+  stays at READY with the head at (0, 0, 0), `display.running` false and focus false, and nothing
+  is logged.
+- In XR the plain Game view capture is blank; capture the eye camera (`--camera CenterEyeAnchor
+  --source camera`). `capture game_view` returns the PNG inline as base64 in its JSON (decode it
+  to a file), and any `save_path` lands under `Assets/` regardless.
+- After a test run the simulator can be deactivated again: re-run the Activate menu before
+  Play-mode captures.
+- The simulator can report `InputFocusLost` at start; a game that pauses on lost focus (as the
+  VRCs require) needs a debug hook to force focus for unattended captures.
+
 - **The session should reach focused:** the console shows
   `[OVRPlugin] [XR_SESSION] ... running 1 visible 1 focused 1` and `SystemHeadset
   Meta_Link_Quest_3`. The `ErrorFunctionUnsupported … xrGetSpaceRoomMeshMETA` style warnings are
@@ -152,6 +173,7 @@ per-eye render under 1 s versus about 20 s:
 unity command menu --project-path . -- --path "Tools/Build Test Scene"    # your generator's menu item
 unity command menu --project-path . -- --path "Tools/Capture/Quest 3 Eyes"
 unity command console --project-path . --format json -- --since <cursor>   # cursor from console_status first
+# Pipeline 0.9: editor invoke_menu, console get (--level, --tail), console status
 ```
 
 - **After editing a C# file,** run `unity command recompile`, then poll `recompile_status` until it
@@ -178,4 +200,5 @@ unity run <project> -- -executeMethod QuestBlockout.SceneCapture.Eyes
 - Comfort for VR locomotion: Meta `hz-immersive-designer`
 - Meta VR Glasses simulator profile (37/37/34/34°): https://developers.meta.com/vr/documentation/unity/xrsim-getting-started/ (2026-09-03); render target 1728 × 1760: https://developers.meta.com/vr/essentials/render-scale/ (2026-09-01); 70° × 66° FoV: https://developers.meta.com/vr/essentials/field-of-view/ (2026-09-25)
 
-Last verified: 2026-10-17 (VR Glasses eyes, not rendered yet); 2026-10-16 (the rest)
+Last verified: 2026-10-25 (the Pipeline 0.9 simulator loop); 2026-10-17 (VR Glasses eyes, not
+rendered yet); 2026-10-16 (the rest)

@@ -5,7 +5,7 @@ metadata:
   author: Navid Mirzaaghazadeh
   author-url: https://github.com/mirzaaghazadeh
   repository: https://github.com/mirzaaghazadeh/unity-meta-quest-skills
-  version: "1.0.0"
+  version: "1.0.1"
 description: >-
   Sets up and uses Meta XR Operator (experimental, Meta XR Core SDK v207+), the
   OpenXR API layer that runs an MCP server inside a running Unity XR app so
@@ -106,6 +106,7 @@ Claude Code loads MCP tools when a session starts. After B, C or D, restart the 
 
 ```bash
 unity command editor_play --project-path <project>           # simulator must be the active OpenXR runtime
+# Pipeline 0.9: `editor.playmode set_run_in_background -- --enable true`, then `editor.playmode start`
 python3 -I <this-skill>/scripts/xrop_http.py list             # tool set depends on app and device profile
 ```
 

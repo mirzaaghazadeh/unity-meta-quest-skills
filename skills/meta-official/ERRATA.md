@@ -59,7 +59,51 @@ on macOS (Apple Silicon), Meta XR Core SDK 207.0.1, Unity OpenXR Plugin 1.18.0, 
 | `hz-xr-simulator-install-and-configure` | (Homebrew is an option Meta documents in `Oculus-VR/homebrew-repo`) | The Homebrew formula `oculus-vr/tap/meta-xr-simulator` was at **71.0.0** (vs 207.1 from `metavr`), needs `brew trust` for the third-party tap, and a `sudo …/post_installation_macos.sh` step. Prefer `metavr tools install xrsim` | `brew info meta-xr-simulator` |
 | `metavr-cli` (SKILL.md "MCP" section) | Register the server with `metavr mcp install project` (or a per-client `metavr mcp install …`) and the agent gets metavr's tools | However it's registered, Claude Code **2.1.301** reports `Connected · tools fetch failed: Invalid result for tools/list … ttlMs … cacheScope`. metavr advertises MCP protocol `2026-07-28`, which Claude Code uses, but omits the `ttlMs`/`cacheScope` fields that version requires on list results (its `server/discover` reply has them). Also, `metavr mcp install claude-code` only **prints** the `claude mcp add` command unless you add `--execute`. Workaround: [`metavr_mcp_relay.py`](../custom/unity-quest-dev-setup/scripts/metavr_mcp_relay.py) (see `unity-quest-dev-setup` Step 8). npm `metavr` 1.8.1 (2026-10-01) still ships binary 1.8.0.17.10, so expect the same result (not re-tested) | Captured JSON-RPC traffic; see `mcp/README.md` |
 
+Later rows, from a second project (Unity 6000.6.6f1, Core and ISDK 207.0.1, `metavr`
+1.8.0.17.10, 2026-10-24 and 25):
+
+| Skill | What the skill says | What happened | Evidence |
+|---|---|---|---|
+| `hz-xr-simulator-control` | Drives the simulator from the Editor's Play button | Driven from the CLI, an unfocused Editor doesn't tick, so the OpenXR session sticks at READY with the head at (0, 0, 0), `display.running` false and focus false, and nothing is logged. Turn on run-in-background first (`unity command editor.playmode set_run_in_background -- --enable true`). The simulator can also raise `OVRManager.InputFocusLost` at start, which freezes a game that pauses on lost focus | Play-mode captures and PlayMode tests; `custom/quest-level-blockout` has the loop |
+| `hz-unity-meta-core-sdk`, `hz-new-project-creation` | (Meta's setup leaves a ready URP project) | `metavr_unity_setup`'s bootstrap project had no URP pipeline asset: GraphicsSettings and every quality level were null, so the Built-in pipeline was active. It also pinned OpenXR 1.16.1 (Meta XR Operator needs 1.17+) | `custom/unity-quest-dev-setup` Step 4 has the fix |
+| Any `hz-*` skill using the Immersive Debugger | (no mention of its settings file) | `Assets/Resources/DevAgentSettings.asset` (the debugger's AI assistant) holds an `accessToken` and a LAN address, and ships in every build from `Resources/`. Git-ignore it and keep it out of release builds | Release APK checked with `unzip`; `custom/unity-quest-android-build` path B |
+
+## Unity's official skills (`unity-official/`) vs. Pipeline 0.9
+
+`unity-cli`, `unity-pipeline` and the Meta skills that call the Pipeline use **Pipeline 0.8**'s
+command names. Pipeline **0.9.1-exp.1** (Unity's docs, read 2026-10-25:
+https://docs.unity3d.com/Packages/com.unity.pipeline@0.9/manual/index.html) names every command
+`<group> <name>`, with dots for nested groups. Observed with unity CLI 1.0.0-beta.13 in a Unity
+6000.6.6f1 project; list yours with `unity command --tag <group> --project-path <project>`.
+
+| Pipeline 0.8 | Pipeline 0.9 |
+|---|---|
+| `run_script` | `script run` (also `script eval`, `script eval_file`) |
+| `recompile` / `recompile_status` | `script recompile` / `script recompile_status` (`idle`, `compiling`, `completed`, `up_to_date`) |
+| `editor_status` | `editor status` |
+| `set_autotick` | `editor set_auto_tick` |
+| `menu` | `editor invoke_menu` (`--path`) |
+| `editor_play` / `editor_stop` | `editor.playmode start` / `editor.playmode stop` (and `set_run_in_background`) |
+| `get_build_settings` | `build get_settings` |
+| `list_build_profiles` | `build list_profiles` (and `build create_profile`) |
+| `switch_build_target` / `switch_build_target_status` | `build.target switch` / `build.target switch_status` |
+| `build` / `build_status` | `build run` / `build status` |
+| `package_add` / `package_status` | `package add` (`--identifier`) / `package status` |
+| `list_tests` / `run_tests` / `test_status` / `cancel_tests` | `test list` / `test run` / `test status` / `test cancel` |
+| `screenshot` | `capture screenshot`, `capture game_view`, `capture scene_view`. `game_view` returns the PNG as base64 in its JSON; in XR use `--camera CenterEyeAnchor --source camera` |
+| `console` / `console_status` | `console get` (`--level`, `--tail`) / `console status` (`compilationFailed`) |
+
+More Pipeline 0.9 behaviour, observed the same way:
+- `package add --wait true` returned "Network error" when the domain reload restarted the server
+  mid-call; the package was added anyway. Poll `package status` instead.
+- Calls made during a domain reload fail with "Network error" or "No Pipeline instance found".
+  Wait for `unity status --until-ready` and call again.
+- After startup the Editor log moves to `<project>/Logs/Editor.log`; grepping
+  `~/Library/Logs/Unity/Editor.log` misses compile errors.
+- Unity 6.6 makes `Object.GetInstanceID()` a compile error (CS0619, obsolete as error).
+
 **What to do in practice:** when you install `hz-store-submit`, also install
 `custom/horizon-store-listing-assets`, `custom/horizon-vrc-checklist` and
 `custom/horizon-store-publish-unity`. Or patch the values above into your installed copy. When
-Meta updates the repo, check whether these rows are fixed before re-applying anything.
+Meta updates the repo, check whether these rows are fixed before re-applying anything. With
+Pipeline 0.9, read the official skills' command names through the table above.

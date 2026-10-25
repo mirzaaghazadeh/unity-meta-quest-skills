@@ -27,8 +27,10 @@ grep -nE "error CS[0-9]{4}|Build Failed|BuildFailedException|CommandInvokationFa
 | Exit `4` | No active license | `unity license status`, then `unity license activate …` (see the official `unity-cli` skill) |
 | Exit `0` but no APK, or a stale one | An `--execute-method` method that doesn't fail on error, or a wrong output path | Use the bundled `QuestBuild.cs` (it calls `EditorApplication.Exit(1)`), and check `data.outputPath` |
 | Editor stuck, `unity status` shows nothing | Safe Mode from compile errors | `unity pipeline list` (Safe Mode flag), fix the errors, restart. See the official `unity-cli` skill |
-| Live `unity command build` never finishes | Modal dialog in the Editor | `unity command editor_status`. `blocked_by_dialog` means ask the user to dismiss it |
+| Live `unity command build run` (0.8: `build`) never finishes | Modal dialog in the Editor | `unity command editor status` (0.8: `editor_status`). `blocked_by_dialog` means ask the user to dismiss it. If `editor status` times out too, the dialog is one the Pipeline can't see: `sample <Unity pid>` on macOS shows `NSAlert runModal`; close the Editor and build headless (path B) |
+| `unity build` says "Unity process stopped with signal SIGABRT" | Unity aborting on exit after the build finished (observed 2026-10-25, 6000.6.6f1) | Read the build log for the success line, then verify the APK (Step 3). It was complete both times |
+| `unity build` can't open the project | An Editor already has it open | `unity close <project>` (positional path), build, `unity open <project>` |
 
-Last verified: 2026-10-16. The causes are drawn from Unity CLI and Pipeline docs, Unity Manual
+Last verified: 2026-10-25 (the last three rows); 2026-10-16 (the rest). The causes are drawn from Unity CLI and Pipeline docs, Unity Manual
 pages and Meta's skills. The Gradle and IL2CPP rows are general Android knowledge, not tested
 against a specific Unity version.
