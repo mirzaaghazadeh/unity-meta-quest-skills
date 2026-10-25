@@ -227,6 +227,42 @@ claude mcp add metavr -- python3 -I <this skill>/scripts/metavr_mcp_relay.py ~/.
 claude mcp get metavr      # expect ✔ Connected; tools load in the next Claude Code session
 ```
 
+**Re-checked 2026-10-25** with Claude Code 2.1.310 and the same metavr binary, 1.8.0.17.10:
+- `~/.metavr/bin/metavr mcp server --update`, registered with no relay, connected, and its tools
+  (`mcp__metavr__*`) loaded after `/reload-plugins`.
+- The `meta-vr` plugin's own server (`npx -y metavr mcp server`) showed `Connected · tools fetch
+  failed — request _meta is missing or has malformed required fields:
+  io.modelcontextprotocol/protocolVersion, io.modelcontextprotocol/clientCapabilities` once, and
+  `✔ Connected` with tools on the next check.
+- So the relay may no longer be needed. Try without it first.
+
+**`metavr init` installs at user scope** (metavr 1.8.0.17.10, 2026-10-25). Ask first, and tell
+the user what it touches:
+- `metavr-cli` plus 35 skills from meta-quest/agentic-tools go into `~/.agents/skills`, symlinked
+  from `~/.claude/skills` and `~/.cursor/skills`;
+- the `meta-vr@meta-vr` plugin (v2.0.0, the same 36 skills plus an MCP server via `npx -y metavr`)
+  is installed at user scope;
+- a `metavr` MCP entry goes into `~/.claude.json` at local scope for the current folder, and into
+  `~/.cursor/mcp.json`;
+- after sign-in it downloads a 330 MB "VRC-local" bundle with 10 more skills: `vrc-drive`,
+  `vrc-verdict`, `vrc-listing-check`, `vrc-listing-assets`, `troubleshoot`, `da-scout`,
+  `analyze-drive`, `perf-render-capture`, `renderdoc-optimize`, `runtime-optimizer`.
+
+The `hz-*` skills duplicate this library's `meta-official` copies. To keep them in one project
+instead:
+1. `claude plugin install meta-vr@meta-vr --scope project`, then `claude plugin uninstall
+   meta-vr@meta-vr --scope user`. Add `meta-quest/agentic-tools` to the project's
+   `extraKnownMarketplaces`.
+2. `claude mcp remove metavr -s local`, then `claude mcp add -s project metavr --
+   ~/.metavr/bin/metavr mcp server --update`. Project servers need a one-time approval when
+   Claude Code next starts there.
+3. Move the skill folders into `<project>/.agents/skills`, and replace the home symlinks with
+   project ones: `.claude/skills` only for the ten VRC-local skills (the plugin brings the
+   rest), and `.cursor/skills` for all of them. Move `~/.cursor/mcp.json` to
+   `<project>/.cursor/mcp.json`.
+4. Git-ignore `.agents/`, `.cursor/` and those links; they're per machine. A later `metavr init`
+   puts everything back at user scope.
+
 Re-check without the relay after metavr or Claude Code updates. Note that `metavr mcp install
 claude-code` only prints the `claude mcp add` command unless you pass `--execute`. npm metavr
 1.8.1 (2026-10-01) changed only the npm wrapper and still installs binary 1.8.0.17.10, so the

@@ -283,7 +283,27 @@ headset sleeps within seconds of a launch, the app gets `APP_CMD_PAUSE`/`STOP`, 
 `metavr capture screenshot -o shot.png` comes back black (it warns that metacam is missing and
 falls back to screencap). Run `metavr device proximity --disable`, relaunch, capture, then
 `metavr device proximity --enable` again. Logcat's `VrApi FPS=` lines give the frame rate, the App
-(GPU) time in ms and GPU %.
+(GPU) time in ms and GPU %. In the same line, `Fov=0D` means dynamic foveation is on (`D`) and
+currently at level 0.
+
+**A launch that never happened** (observed 2026-10-25, metavr 1.8):
+- `metavr app launch <pkg> --cold-start --verify` printed "Launched" and "no crash signal". But
+  `pidof <pkg>` was empty, because Horizon OS had held the launch back. Logcat said
+  `Launch is blocked because: a Reprojected OS dialog is currently showing. Caching launch`, then
+  `Interstitial session (APP_RESUME) took more than 15s` and `appLaunchFailureBroadcastReceived`.
+- The app starts once someone closes the dialog in the headset.
+- After a launch, check `metavr adb shell "pidof <pkg>"`, or look for
+  `ForegroundAppHandler: Changing in focus immersive app ... to (<pkg>)`.
+
+**Recording logcat for a whole session:**
+- Piping `metavr adb logcat -f ...` or `metavr adb shell "logcat -T 1 ..."` into a file on the Mac
+  wrote nothing, even after minutes.
+- What worked was letting the headset write the file:
+  `metavr adb shell "nohup logcat -v time -f /sdcard/Download/session.log -r 8192 -n 2 Unity:V VrApi:I AndroidRuntime:E '*:S' > /dev/null 2>&1 &"`,
+  then `metavr adb pull /sdcard/Download/session.log` when needed.
+- `metavr log --tag <tag> -n <lines> --format plain` is fine for a snapshot.
+- `metavr adb -- logcat ...` is rejected ("unexpected argument"): write `metavr adb logcat` or
+  `metavr adb shell "logcat ..."`.
 
 `adb` comes with the Unity SDK module under `.../SDK/platform-tools/adb`. For store upload
 (`ovr-platform-util upload-quest-build`), OBB and asset files, and release channels, use

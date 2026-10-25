@@ -85,6 +85,15 @@ unity command test status --project-path <project> --format json        # poll u
   focus on in the test's setup (a test hook on your pause component).
 - With the Editor ticking in the background, frames aren't capped: a wait of N frames passes in
   milliseconds. Wait in real seconds (`Time.unscaledDeltaTime`), not frames.
+- The opposite also happens (observed 2026-10-25). A just-reopened, unfocused Editor ran some
+  test frames at Unity's `Time.maximumDeltaTime` cap of 0.333 s.
+  - A "nobody teleports" check that failed any per-frame step over 0.25 m then failed on a normal
+    1.3 m/s walk (0.433 m per frame). It failed at the previous commit too.
+  - Judge motion by speed instead: flag a step only when it is larger than both a fixed floor
+    and `fastest speed × Time.deltaTime`.
+- Code under test that calls `Debug.Log` fails tests that use `LogAssert.NoUnexpectedReceived()`
+  ("Unhandled log message: [Log] …"), not only errors. Gate device-only diagnostics on
+  `!Application.isEditor`, or expect them in the test.
 - Mesh vertices of imported models that aren't Read/Write enabled can't be read in PlayMode. Do
   geometry checks in EditMode: open the scene with `EditorSceneManager.OpenScene(path, OpenSceneMode.Additive)`.
 
